@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { getStudentProfileByUserId } from '@/lib/auth';
 import { query } from '@/lib/db';
+import { generateStrategicAdvisory } from '@/lib/advisory';
 
 export const dynamic = 'force-dynamic';
 
@@ -65,6 +66,13 @@ export async function GET(req: NextRequest) {
       };
     }
 
+    const advisory = generateStrategicAdvisory(
+      profile,
+      courses,
+      topicMastery,
+      archetypeRows[0] || null
+    );
+
     return NextResponse.json({
       recommendation: parsedRec,
       profile,
@@ -73,6 +81,7 @@ export async function GET(req: NextRequest) {
       dynamic_profile: dlProfile[0] || null,
       ocean_profile: oceanRows[0] || null,
       ocean_archetype: archetypeRows[0] || null,
+      advisory,
     });
   } catch (error) {
     console.error('Navigator fetch error:', error);
