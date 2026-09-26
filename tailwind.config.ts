@@ -30,6 +30,15 @@ const config: Config = {
           600: "#e11d48",
         },
       },
+      boxShadow: {
+        xs: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+      },
+      borderWidth: {
+        "3": "3px",
+      },
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', "sans-serif"],
+      },
     },
   },
   plugins: [],

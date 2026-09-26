@@ -35,7 +35,7 @@ export default function NavBar({
   const studentLinks = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/profile', icon: User, label: 'Profile' },
-    { href: '/mfc', icon: BookOpen, label: 'MFC Assessment' },
+    { href: '/mfc', icon: BookOpen, label: 'MFC' },
     { href: '/navigator', icon: Compass, label: 'AI Navigator' },
     { href: '/quest', icon: Swords, label: 'Quests' },
     { href: '/progress', icon: TrendingUp, label: 'Progress' },
@@ -63,12 +63,12 @@ export default function NavBar({
   }
 
   return (
-    <nav className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <nav className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div
-            className="flex items-center gap-3 cursor-pointer"
+            className="flex items-center gap-3 cursor-pointer shrink-0"
             onClick={() => router.push(userRole === 'faculty' ? '/faculty' : '/dashboard')}
           >
             <div className="w-9 h-9 bg-gradient-to-tr from-indigo-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-md shadow-indigo-200">
@@ -83,14 +83,14 @@ export default function NavBar({
           </div>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-0.5 lg:gap-1">
             {links.map((link) => {
               const active = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
               return (
                 <button
                   key={link.href}
                   onClick={() => router.push(link.href)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 lg:px-3.5 lg:py-2 rounded-xl text-xs font-semibold transition-all ${
                     active
                       ? 'bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-50'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
@@ -104,7 +104,7 @@ export default function NavBar({
           </div>
 
           {/* Right User Bar */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 lg:gap-3 shrink-0">
             {/* Quick Role Switcher Button for Judges & Demo */}
             <button
               onClick={handleSwitchRole}
