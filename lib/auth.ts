@@ -56,8 +56,13 @@ export async function loginWithEmailPassword(email: string, password: string): P
   };
 }
 
-export async function quickDemoLogin(role: 'student' | 'faculty'): Promise<User | null> {
-  const email = role === 'faculty' ? 'faculty@learnquest.local' : 'student@learnquest.local';
+export async function quickDemoLogin(role: 'student' | 'faculty' | 'mba'): Promise<User | null> {
+  let email = 'student@learnquest.local';
+  if (role === 'faculty') {
+    email = 'faculty@learnquest.local';
+  } else if (role === 'mba') {
+    email = 'mba@learnquest.local';
+  }
   const users = await query<any>(
     'SELECT id, name, email, password_hash, role, avatar_url, created_at FROM users WHERE email = ?',
     [email]

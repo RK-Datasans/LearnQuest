@@ -14,8 +14,10 @@ import {
   X,
   GraduationCap,
   Users,
+  Briefcase,
+  ChevronDown,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface NavBarProps {
   userRole?: 'student' | 'faculty' | 'admin';
@@ -31,6 +33,18 @@ export default function NavBar({
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const switcherRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (switcherRef.current && !switcherRef.current.contains(event.target as Node)) {
+        setSwitcherOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const studentLinks = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -52,15 +66,18 @@ export default function NavBar({
     router.push('/login');
   }
 
-  async function handleSwitchRole() {
-    const targetRole = userRole === 'faculty' ? 'student' : 'faculty';
+  async function handleSwitchPersona(target: 'student' | 'mba' | 'faculty') {
+    setSwitcherOpen(false);
+    setMobileOpen(false);
     await fetch('/api/auth/demo', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role: targetRole }),
+      body: JSON.stringify({ role: target }),
     });
-    router.push(targetRole === 'faculty' ? '/faculty' : '/dashboard');
+    window.location.href = target === 'faculty' ? '/faculty' : '/dashboard';
   }
+
+  const isMbaStudent = userName?.toLowerCase().includes('ananya') || studentId?.includes('MBA');
 
   return (
     <nav className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
@@ -105,19 +122,79 @@ export default function NavBar({
 
           {/* Right User Bar */}
           <div className="flex items-center gap-2 lg:gap-3 shrink-0">
-            {/* Quick Role Switcher Button for Judges & Demo */}
-            <button
-              onClick={handleSwitchRole}
-              title={`Switch to ${userRole === 'faculty' ? 'Student View' : 'Faculty View'}`}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors border border-slate-200"
-            >
-              <GraduationCap className="w-3.5 h-3.5 text-indigo-600" />
-              <span>Switch to {userRole === 'faculty' ? 'Student' : 'Faculty'}</span>
-            </button>
+            {/* Persona Switcher Dropdown */}
+            <div className="relative" ref={switcherRef}>
+              <button
+                onClick={() => setSwitcherOpen(!switcherOpen)}
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors border border-slate-200"
+              >
+                {userRole === 'faculty' ? (
+                  <Users className="w-3.5 h-3.5 text-violet-600" />
+                ) : isMbaStudent ? (
+                  <Briefcase className="w-3.5 h-3.5 text-emerald-600" />
+                ) : (
+                  <GraduationCap className="w-3.5 h-3.5 text-indigo-600" />
+                )}
+                <span>Switch Persona</span>
+                <ChevronDown className="w-3 h-3 text-slate-400" />
+              </button>
+
+              {switcherOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="px-2.5 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Switch Active Persona
+                  </div>
+                  <button
+                    onClick={() => handleSwitchPersona('student')}
+                    className="w-full flex items-center gap-2.5 p-2 rounded-xl text-left hover:bg-indigo-50 transition-colors"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
+                      R
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-800">Rahul Sharma</div>
+                      <div className="text-[10px] text-slate-500">B.Tech CSE · Creative Builder</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleSwitchPersona('mba')}
+                    className="w-full flex items-center gap-2.5 p-2 rounded-xl text-left hover:bg-emerald-50 transition-colors mt-1"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
+                      A
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-800">Ananya Rao</div>
+                      <div className="text-[10px] text-slate-500">MBA Tech Mgmt · Team Driver</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleSwitchPersona('faculty')}
+                    className="w-full flex items-center gap-2.5 p-2 rounded-xl text-left hover:bg-violet-50 transition-colors mt-1"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-xs">
+                      P
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-800">Dr. Priya Mehta</div>
+                      <div className="text-[10px] text-slate-500">Faculty Lead · Professor</div>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Profile Tag */}
             <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-indigo-400 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm ${
+                userRole === 'faculty'
+                  ? 'bg-gradient-to-tr from-violet-600 to-violet-500'
+                  : isMbaStudent
+                  ? 'bg-gradient-to-tr from-emerald-600 to-emerald-500'
+                  : 'bg-gradient-to-tr from-indigo-500 to-indigo-400'
+              }`}>
                 {userName?.charAt(0) || 'U'}
               </div>
               <div className="hidden lg:block text-left">
@@ -127,13 +204,17 @@ export default function NavBar({
                     <span className="text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-md font-semibold">
                       Faculty
                     </span>
-                  ) : (
+                  ) : isMbaStudent ? (
                     <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-md font-semibold">
-                      STU
+                      MBA
+                    </span>
+                  ) : (
+                    <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-md font-semibold">
+                      B.Tech
                     </span>
                   )}
                 </div>
-                <div className="text-[11px] text-slate-400">{userRole === 'faculty' ? 'Dept of CS' : studentId}</div>
+                <div className="text-[11px] text-slate-400">{userRole === 'faculty' ? 'School of Computing' : studentId}</div>
               </div>
             </div>
 
@@ -178,13 +259,30 @@ export default function NavBar({
               </button>
             );
           })}
-          <div className="pt-2 border-t border-slate-100">
+          <div className="pt-2 border-t border-slate-100 space-y-1">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
+              Switch Persona
+            </div>
             <button
-              onClick={handleSwitchRole}
-              className="w-full flex items-center justify-center gap-2 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl"
+              onClick={() => handleSwitchPersona('student')}
+              className="w-full flex items-center gap-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl"
             >
               <GraduationCap className="w-4 h-4 text-indigo-600" />
-              Switch to {userRole === 'faculty' ? 'Student View' : 'Faculty View'}
+              Rahul Sharma (B.Tech CSE)
+            </button>
+            <button
+              onClick={() => handleSwitchPersona('mba')}
+              className="w-full flex items-center gap-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl"
+            >
+              <Briefcase className="w-4 h-4 text-emerald-600" />
+              Ananya Rao (MBA Tech)
+            </button>
+            <button
+              onClick={() => handleSwitchPersona('faculty')}
+              className="w-full flex items-center gap-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl"
+            >
+              <Users className="w-4 h-4 text-violet-600" />
+              Dr. Priya Mehta (Faculty)
             </button>
           </div>
         </div>
@@ -192,3 +290,4 @@ export default function NavBar({
     </nav>
   );
 }
+

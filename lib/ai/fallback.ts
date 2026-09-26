@@ -207,6 +207,140 @@ export function getFallbackQuizQuestion(context: any): QuizQuestionResponse {
     return available.length > 0 ? available[0] : easyPool[Math.floor(Math.random() * easyPool.length)];
   }
 
+  // Unit Economics & LTV/CAC (MBA Tech Management & Venture Streams)
+  if (topicName.includes('unit economics') || topicName.includes('ltv') || topicName.includes('cac')) {
+    if (difficulty === 'Boss' || stageName.includes('boss')) {
+      const bossPool: QuizQuestionResponse[] = [
+        {
+          question: 'APEX VENTURE DEFENSE: A B2B SaaS product has an ARPU of $500/month with an 80% gross margin. Total fully-loaded customer acquisition cost is $6,000 per customer. If monthly logo churn is 2.5%, what is the true LTV:CAC ratio and the CAC Payback Period (in months)?',
+          options: [
+            'A. LTV:CAC = 2.67:1, CAC Payback = 15 months',
+            'B. LTV:CAC = 3.33:1, CAC Payback = 12 months',
+            'C. LTV:CAC = 1.67:1, CAC Payback = 20 months',
+            'D. LTV:CAC = 4.00:1, CAC Payback = 10 months',
+          ],
+          correct_answer: 'A',
+          explanation: 'Monthly Gross Profit per customer = $500 * 80% = $400. Average Customer Lifetime = 1 / Churn = 1 / 0.025 = 40 months. LTV = $400 * 40 = $16,000. LTV:CAC = $16,000 / $6,000 = 2.67:1. CAC Payback Period = CAC / Monthly Gross Profit = $6,000 / $400 = 15 months. Because LTV:CAC < 3.0:1 and payback > 12 months, this venture structure requires margin or retention optimization before scaling growth capital.',
+          difficulty: 'Boss',
+          concept: 'Comprehensive SaaS Cohort LTV:CAC & Payback Period Modeling',
+        },
+        {
+          question: 'APEX VENTURE DEFENSE: A startup experiences net negative revenue churn (expansion revenue exceeds churned ARR by 15% annually). If CAC is $12,000, first-year ARPU is $10,000 with 75% gross margin, how does net negative churn alter traditional static LTV calculations?',
+          options: [
+            'A. It makes customer lifetime unbounded in standard geometric series; LTV must be modeled via capped multi-year cohort discounting.',
+            'B. It reduces CAC Payback period to zero immediately upon contract signature.',
+            'C. It violates standard venture accounting and cannot be reported to institutional investors.',
+            'D. It causes gross margins to decline in direct proportion to customer retention.',
+          ],
+          correct_answer: 'A',
+          explanation: 'When Net Revenue Retention (NRR) > 100%, each surviving customer cohort expands in dollar value over time faster than accounts churn. In classic formulas (1/churn), LTV would mathematically approach infinity, which is unrealistic. Rigorous PMs and investors apply discounted cash flow (DCF) or 5-year cohort terminal caps.',
+          difficulty: 'Boss',
+          concept: 'Net Negative Churn & Expansion Revenue Dynamics',
+        },
+      ];
+      const available = bossPool.filter(q => !recentQuestions.some(rq => rq.includes(q.question.substring(0, 35))));
+      return available.length > 0 ? available[0] : bossPool[Math.floor(Math.random() * bossPool.length)];
+    }
+
+    if (difficulty === 'Hard' || stageName.includes('challenge')) {
+      const challengePool: QuizQuestionResponse[] = [
+        {
+          question: 'CHALLENGE: A tech startup calculates LTV using total revenue rather than gross profit (Revenue LTV = ARPU / Churn). If gross margin is 60%, monthly ARPU is $100, monthly churn is 5%, and CAC is $800, what critical error has management made, and what is the true LTV:CAC ratio?',
+          options: [
+            'A. They overstated LTV by 40%; the true LTV:CAC ratio is 1.5:1 (unprofitable after operating overhead), not 2.5:1.',
+            'B. They underestimated CAC; the true ratio is 3.5:1.',
+            'C. Total revenue LTV is standard GAAP accounting; the actual ratio is 2.5:1.',
+            'D. Gross margin has no mathematical bearing on LTV in subscription software.',
+          ],
+          correct_answer: 'A',
+          explanation: 'Revenue LTV = $100 / 0.05 = $2,000 (ratio 2.5:1). But delivering the software incurs 40% COGS! True Gross Profit LTV = ($100 * 0.60) / 0.05 = $1,200. True LTV:CAC = $1,200 / $800 = 1.5:1. An LTV:CAC below 3.0:1 leaves virtually zero contribution margin to fund R&D and general administrative overhead.',
+          difficulty: 'Hard',
+          concept: 'Gross Margin Adjustment in Customer Lifetime Value',
+        },
+        {
+          question: 'CHALLENGE: Product A has CAC = $1,200, Payback = 8 months, LTV:CAC = 3.2:1. Product B has CAC = $400, Payback = 18 months, LTV:CAC = 4.5:1. In a capital-constrained high-interest rate environment, which product should the PM prioritize for marketing capital allocation?',
+          options: [
+            'A. Product A: 8-month payback allows capital to be recycled 2.25x faster, minimizing equity dilution and cash burn.',
+            'B. Product B: The higher 4.5:1 LTV:CAC ratio is always the sole metric venture capitalists evaluate.',
+            'C. Both products are mathematically identical because CAC is below $2,000.',
+            'D. Neither product should be funded until payback reaches exactly 30 days.',
+          ],
+          correct_answer: 'A',
+          explanation: 'In capital-constrained markets, cash velocity (Payback Horizon) trumps theoretical long-horizon LTV. An 8-month payback recycles cash into new customer acquisition in under a year, whereas an 18-month payback traps scarce working capital and risks insolvency if churn spikes.',
+          difficulty: 'Hard',
+          concept: 'Capital Efficiency: CAC Payback vs Theoretical LTV Horizon',
+        },
+      ];
+      const available = challengePool.filter(q => !recentQuestions.some(rq => rq.includes(q.question.substring(0, 35))));
+      return available.length > 0 ? available[0] : challengePool[Math.floor(Math.random() * challengePool.length)];
+    }
+
+    if (difficulty === 'Medium' || stageName.includes('practice')) {
+      const practicePool: QuizQuestionResponse[] = [
+        {
+          question: 'PRACTICE: What is the primary reason why CAC Payback Period is often considered more critical for early-stage startup cash flow than the standalone LTV:CAC ratio?',
+          options: [
+            'A. CAC Payback dictates cash runway and how rapidly invested marketing capital recycles to acquire new cohorts.',
+            'B. LTV:CAC cannot be computed until a company goes public.',
+            'C. Payback period completely ignores churn, making it a more optimistic metric for pitch decks.',
+            'D. CAC Payback is a required statutory filing with the SEC for all private enterprises.',
+          ],
+          correct_answer: 'A',
+          explanation: 'Even with a stellar theoretical LTV:CAC (e.g. 5:1 over 4 years), if CAC Payback is 24 months, a startup will run out of cash financing acquisition upfront before recovering the cash outlay. Sub-12 month payback creates a self-funding growth engine.',
+          difficulty: 'Medium',
+          concept: 'CAC Payback Period & Working Capital Velocity',
+        },
+        {
+          question: 'PRACTICE: In calculating Fully-Loaded Customer Acquisition Cost (CAC), which expense category is most frequently omitted by early-stage product teams, leading to artificial underestimation?',
+          options: [
+            'A. Sales and marketing salaries, commissions, and overhead tools (CRM, enrichment, lead gen software).',
+            'B. Server hosting costs for existing active subscribers.',
+            'C. Product design depreciation and research patents.',
+            'D. Payment gateway transaction fees on recurring renewals.',
+          ],
+          correct_answer: 'A',
+          explanation: 'Pure ad spend (blended CAC) severely understates actual acquisition costs. Fully-loaded CAC must include sales reps base salaries, bonuses, SDR tooling, marketing agency fees, and overhead.',
+          difficulty: 'Medium',
+          concept: 'Fully-Loaded vs Blended CAC Calculation',
+        },
+      ];
+      const available = practicePool.filter(q => !recentQuestions.some(rq => rq.includes(q.question.substring(0, 35))));
+      return available.length > 0 ? available[0] : practicePool[Math.floor(Math.random() * practicePool.length)];
+    }
+
+    // Easy remediation
+    const easyPool: QuizQuestionResponse[] = [
+      {
+        question: 'REMEDIATION: If a digital product company spends $50,000 on digital marketing campaigns and $30,000 on sales salaries in a quarter, resulting in 400 new paying customers, what is the Customer Acquisition Cost (CAC)?',
+        options: [
+          'A. $200 per customer',
+          'B. $125 per customer',
+          'C. $80 per customer',
+          'D. $320 per customer',
+        ],
+        correct_answer: 'A',
+        explanation: 'CAC = Total Acquisition Costs / Total New Customers Acquired = ($50,000 + $30,000) / 400 = $80,000 / 400 = $200 per customer.',
+        difficulty: 'Easy',
+        concept: 'Foundational CAC Equation',
+      },
+      {
+        question: 'REMEDIATION: If a SaaS product charges $50/month with zero COGS and experiences a 5% monthly customer churn rate, what is the expected customer lifetime (in months)?',
+        options: [
+          'A. 20 months',
+          'B. 5 months',
+          'C. 50 months',
+          'D. 12 months',
+        ],
+        correct_answer: 'A',
+        explanation: 'Expected Customer Lifetime = 1 / Churn Rate = 1 / 0.05 = 20 months. Average LTV would be 20 months * $50 = $1,000.',
+        difficulty: 'Easy',
+        concept: 'Customer Lifetime & Inverse Churn Relationship',
+      },
+    ];
+    const available = easyPool.filter(q => !recentQuestions.some(rq => rq.includes(q.question.substring(0, 35))));
+    return available.length > 0 ? available[0] : easyPool[Math.floor(Math.random() * easyPool.length)];
+  }
+
   // Generic fallback
   return {
     question: `Which statement best describes the role of functional dependencies in relational schema design?`,
@@ -293,6 +427,52 @@ Primary Key: (OrderID, ProductID)
   Fix: Move to PRODUCT(ProductID, ProductCategory)
 
 Key Rule: Partial = depends on PART of the key. Transitive = A→B→C through a non-key attribute.`;
+    }
+  } else if (topicName.includes('unit economics') || topicName.includes('ltv') || topicName.includes('cac')) {
+    if (difficulty === 'Boss' || context.question?.includes('APEX') || context.question?.includes('BOSS')) {
+      misconception = 'Gross Margin Omission in Lifetime Value & Infinite Horizon Trap';
+      feedback = 'You selected an answer that fails to incorporate gross margin profitability or ignores the mathematical reality of unbounded revenue lifetimes under net negative churn. In real venture economics, revenue is not profit, and surviving cohorts must be discounted over finite operational horizons.';
+      remediationExample = `Worked Example — Comprehensive SaaS LTV:CAC & Payback:
+ASSUMPTIONS:
+• Monthly ARPU = $500
+• Gross Margin = 80% (COGS = 20%)
+• Monthly Logo Churn = 2.5%
+• Blended CAC = $6,000
+
+STEP-BY-STEP CALCULATION:
+1. Monthly Gross Profit per Customer = $500 × 0.80 = $400
+2. Customer Lifetime = 1 / Churn = 1 / 0.025 = 40 months
+3. Lifetime Value (LTV) = Monthly Gross Profit × Lifetime = $400 × 40 = $16,000
+4. LTV:CAC Ratio = $16,000 / $6,000 = 2.67:1  (Industry Benchmark is ≥ 3.0:1)
+5. CAC Payback Period = CAC / Monthly Gross Profit = $6,000 / $400 = 15 months
+
+DECISION: Payback exceeds 12 months and LTV:CAC is below 3x. Management must reduce CAC or improve gross margin before accelerating marketing spend.`;
+    } else if (difficulty === 'Hard' || context.question?.includes('CHALLENGE')) {
+      misconception = 'Revenue LTV vs Contribution Margin LTV Fallacy (Gross Margin Distortion)';
+      feedback = 'You selected an answer that computes LTV from topline revenue rather than gross profit. When COGS is 40%, evaluating LTV on total subscription revenue inflates your apparent unit economics by 67%, leading to catastrophic cash burn under scale.';
+      remediationExample = `Worked Example — Revenue LTV vs True Gross Profit LTV:
+SCENARIO: ARPU = $100/mo, Gross Margin = 60%, Churn = 5%, CAC = $800
+
+• FLAWED (Topline Revenue):
+  LTV = $100 / 0.05 = $2,000
+  Ratio = $2,000 / $800 = 2.5:1 (Looks viable!)
+
+• ACCURATE (Gross Profit):
+  Monthly GP = $100 × 0.60 = $60
+  True LTV = $60 / 0.05 = $1,200
+  True Ratio = $1,200 / $800 = 1.5:1 (UNVIABLE — loses money after operating expenses)
+
+Always multiply ARPU by Gross Margin % before computing lifetime value!`;
+    } else {
+      misconception = 'Confusion between Working Capital Payback Horizon and Long-Term Theoretical LTV';
+      feedback = 'You selected an option that confuses cash payback velocity with lifetime value. Even with healthy 4:1 LTV, an extended payback period (e.g., 18–24 months) depletes working capital and risks bankruptcy before lifetime profits are realized.';
+      remediationExample = `Worked Example — Payback Period vs LTV:CAC:
+• PRODUCT A: CAC = $1,200, Payback = 8 months, LTV:CAC = 3.2:1
+• PRODUCT B: CAC = $400, Payback = 18 months, LTV:CAC = 4.5:1
+
+In tight capital environments, Product A is preferred:
+Because its CAC is recovered in 8 months, the company can reinvest that same dollar 1.5 times per year.
+Product B locks capital for 1.5 years per iteration, exposing the business to severe cash crunches if churn shifts.`;
     }
   }
 

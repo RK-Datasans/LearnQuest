@@ -3,7 +3,7 @@ import { quickDemoLogin } from '@/lib/auth';
 import { z } from 'zod';
 
 const DemoSchema = z.object({
-  role: z.enum(['student', 'faculty']),
+  role: z.enum(['student', 'faculty', 'mba']),
 });
 
 export async function POST(req: NextRequest) {

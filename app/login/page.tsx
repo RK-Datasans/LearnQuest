@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Brain, Mail, Lock, ChevronRight, GraduationCap, Users, ShieldAlert, ArrowLeft } from 'lucide-react';
+import { Brain, Mail, Lock, ChevronRight, GraduationCap, Users, ShieldAlert, ArrowLeft, Briefcase } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,7 +36,7 @@ export default function LoginPage() {
     }
   }
 
-  async function handleDemoLogin(role: 'student' | 'faculty') {
+  async function handleDemoLogin(role: 'student' | 'faculty' | 'mba') {
     setDemoLoading(role);
     setError('');
     try {
@@ -90,27 +90,38 @@ export default function LoginPage() {
               <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">1-Click Demo Login</span>
               <span className="text-[10px] text-slate-400 bg-white/10 px-2 py-0.5 rounded-full">Recommended</span>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => handleDemoLogin('student')}
                 disabled={!!demoLoading}
-                className="flex flex-col items-center justify-center gap-1.5 p-3.5 bg-indigo-600/80 hover:bg-indigo-600 border border-indigo-400/40 rounded-2xl text-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                className="flex flex-col items-center justify-center gap-1 p-2.5 bg-indigo-600/80 hover:bg-indigo-600 border border-indigo-400/40 rounded-2xl text-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 text-center"
               >
-                <GraduationCap className="w-5 h-5 text-indigo-200" />
-                <span className="text-xs font-bold">Rahul Sharma</span>
-                <span className="text-[10px] text-indigo-200">Student (CSE Yr 2)</span>
+                <GraduationCap className="w-4 h-4 text-indigo-200" />
+                <span className="text-[11px] font-bold leading-tight">Rahul</span>
+                <span className="text-[9px] text-indigo-200">B.Tech CSE</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('mba')}
+                disabled={!!demoLoading}
+                className="flex flex-col items-center justify-center gap-1 p-2.5 bg-emerald-600/80 hover:bg-emerald-600 border border-emerald-400/40 rounded-2xl text-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 text-center"
+              >
+                <Briefcase className="w-4 h-4 text-emerald-200" />
+                <span className="text-[11px] font-bold leading-tight">Ananya</span>
+                <span className="text-[9px] text-emerald-200">MBA Tech</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleDemoLogin('faculty')}
                 disabled={!!demoLoading}
-                className="flex flex-col items-center justify-center gap-1.5 p-3.5 bg-violet-600/80 hover:bg-violet-600 border border-violet-400/40 rounded-2xl text-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                className="flex flex-col items-center justify-center gap-1 p-2.5 bg-violet-600/80 hover:bg-violet-600 border border-violet-400/40 rounded-2xl text-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 text-center"
               >
-                <Users className="w-5 h-5 text-violet-200" />
-                <span className="text-xs font-bold">Dr. Priya Mehta</span>
-                <span className="text-[10px] text-violet-200">Faculty (Professor)</span>
+                <Users className="w-4 h-4 text-violet-200" />
+                <span className="text-[11px] font-bold leading-tight">Dr. Priya</span>
+                <span className="text-[9px] text-violet-200">Faculty</span>
               </button>
             </div>
           </div>
@@ -183,12 +194,16 @@ export default function LoginPage() {
           <div className="mt-6 p-3.5 bg-white/5 border border-white/10 rounded-2xl text-[11px] text-slate-400">
             <div className="font-semibold text-slate-300 mb-1">Pre-configured Demo Credentials:</div>
             <div className="flex justify-between py-0.5">
-              <span>Student:</span>
+              <span>B.Tech CSE:</span>
               <span className="font-mono text-indigo-300">student@learnquest.local / Demo123!</span>
             </div>
             <div className="flex justify-between py-0.5">
-              <span>Faculty:</span>
-              <span className="font-mono text-indigo-300">faculty@learnquest.local / Demo123!</span>
+              <span>MBA Tech:</span>
+              <span className="font-mono text-emerald-300">mba@learnquest.local / Demo123!</span>
+            </div>
+            <div className="flex justify-between py-0.5">
+              <span>Faculty Lead:</span>
+              <span className="font-mono text-violet-300">faculty@learnquest.local / Demo123!</span>
             </div>
           </div>
         </div>
