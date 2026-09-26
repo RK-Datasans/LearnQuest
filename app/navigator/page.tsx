@@ -94,7 +94,7 @@ export default function NavigatorPage() {
               AI Academic Navigator
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Reasoning across academic scores, career goal ({profile?.career_goal}), MFC engagement preferences, and {profile?.weekly_learning_hours}h weekly availability.
+              Reasoning across academic performance, career goal ({profile?.career_goal}), {profile?.weekly_learning_hours}h weekly availability, and OCEAN archetype ({data?.ocean_archetype?.primary_name || 'Creative Builder'}).
             </p>
           </div>
 
@@ -117,25 +117,31 @@ export default function NavigatorPage() {
           </div>
         </div>
 
-        {/* Multi-Signal Input Chips */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+        {/* Multi-Signal Input Chips (5 Core Signals) */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
           <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 text-xs">
-            <span className="text-slate-400 block mb-0.5 font-medium">Academic Context</span>
+            <span className="text-slate-400 block mb-0.5 font-medium">1. Academic Context</span>
             <span className="font-bold text-slate-800">
               {profile?.degree} {profile?.program_code} (Sem {profile?.current_semester})
             </span>
           </div>
           <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 text-xs">
-            <span className="text-slate-400 block mb-0.5 font-medium">Career Destination</span>
+            <span className="text-slate-400 block mb-0.5 font-medium">2. Career Destination</span>
             <span className="font-bold text-slate-800">{profile?.career_goal}</span>
           </div>
           <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 text-xs">
-            <span className="text-slate-400 block mb-0.5 font-medium">Available Time</span>
+            <span className="text-slate-400 block mb-0.5 font-medium">3. Available Time</span>
             <span className="font-bold text-slate-800">{profile?.weekly_learning_hours} Hours / Week</span>
           </div>
           <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 text-xs">
-            <span className="text-slate-400 block mb-0.5 font-medium">Observed Learning Signal</span>
+            <span className="text-slate-400 block mb-0.5 font-medium">4. Observed Preference</span>
             <span className="font-bold text-indigo-600">Worked Examples (82%)</span>
+          </div>
+          <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 text-xs">
+            <span className="text-slate-400 block mb-0.5 font-medium">5. OCEAN Archetype</span>
+            <span className="font-bold text-violet-700">
+              {data?.ocean_archetype?.primary_name || 'Creative Builder'}
+            </span>
           </div>
         </div>
 

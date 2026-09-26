@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const profile = await getStudentProfileByUserId(session.userId);
     if (!profile) return NextResponse.json({ error: 'Profile not found.' }, { status: 404 });
 
-    const [courses, topicMastery, dlProfile, activeQuest, activeRec, recentXP, badges] = await Promise.all([
+    const [courses, topicMastery, dlProfile, activeQuest, activeRec, recentXP, badges, archetypeRows] = await Promise.all([
       query<any>(
         `SELECT sc.score, sc.grade, c.id, c.code, c.name, c.credits
          FROM student_courses sc
@@ -70,6 +70,13 @@ export async function GET(req: NextRequest) {
          ORDER BY sb.unlocked_at DESC LIMIT 3`,
         [profile.id]
       ),
+      query<any>(
+        `SELECT soa.primary_archetype_code, oa.name as primary_name, oa.primary_traits
+         FROM student_ocean_archetypes soa
+         JOIN ocean_archetypes oa ON soa.primary_archetype_code = oa.code
+         WHERE soa.student_id = ?`,
+        [profile.id]
+      ),
     ]);
 
     return NextResponse.json({
@@ -81,6 +88,7 @@ export async function GET(req: NextRequest) {
       recommendation: activeRec[0] || null,
       recent_xp: recentXP,
       badges,
+      ocean_archetype: archetypeRows[0] || null,
     });
   } catch (error) {
     console.error('Dashboard error:', error);

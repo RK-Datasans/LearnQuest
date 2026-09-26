@@ -232,3 +232,36 @@ export interface FacultyAIInsight {
   suggested_intervention: string;
   expected_outcome: string;
 }
+
+export interface OCEANProfile {
+  id: number;
+  student_id: number;
+  openness: number;
+  conscientiousness: number;
+  extraversion: number;
+  agreeableness: number;
+  neuroticism: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface OCEANArchetype {
+  code: string;
+  name: string;
+  description: string;
+  primary_traits: string;
+  learning_tendency: string;
+}
+
+export interface StudentOCEANArchetype {
+  id: number;
+  student_id: number;
+  primary_archetype_code: string;
+  secondary_archetype_code?: string | null;
+  primary_name?: string;
+  primary_description?: string;
+  secondary_name?: string;
+  supporting_evidence: string;
+  updated_at?: string;
+}
+

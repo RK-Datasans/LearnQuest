@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
       baseParams.push(parseInt(yearFilter, 10));
     }
 
-    const [overview, programs, coursePerf, topicGaps] = await Promise.all([
+    const [overview, programs, coursePerf, topicGaps, archetypeGaps] = await Promise.all([
       query<any>(
         `SELECT
            COUNT(*) as total_students,
@@ -76,6 +76,17 @@ export async function GET(req: NextRequest) {
          LIMIT 8`,
         baseParams
       ),
+      query<any>(
+        `SELECT oa.name as archetype_name, oa.code as archetype_code, COUNT(*) as student_count
+         FROM student_ocean_archetypes soa
+         JOIN ocean_archetypes oa ON soa.primary_archetype_code = oa.code
+         JOIN student_profiles sp ON soa.student_id = sp.id
+         JOIN programs p ON sp.program_id = p.id
+         ${baseWhere}
+         GROUP BY oa.code
+         ORDER BY student_count DESC`,
+        baseParams
+      ),
     ]);
 
     const stats = overview[0] || {};
@@ -92,6 +103,7 @@ export async function GET(req: NextRequest) {
       program_distribution: programs,
       course_performance: coursePerf,
       topic_gaps: topicGaps,
+      archetype_distribution: archetypeGaps,
       filters: { program: programFilter, year: yearFilter, course: courseFilter },
     });
   } catch (error) {

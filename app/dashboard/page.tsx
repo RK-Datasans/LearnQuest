@@ -140,13 +140,19 @@ export default function DashboardPage() {
           className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
         >
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 Welcome back, {profile.name?.split(' ')[0]} 👋
               </h1>
               <span className="px-2 py-0.5 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold rounded-md">
                 {profile.student_id}
               </span>
+              {data?.ocean_archetype?.primary_name && (
+                <span className="px-2.5 py-0.5 bg-violet-50 border border-violet-200 text-violet-700 text-xs font-bold rounded-md flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-violet-600" />
+                  <span>Archetype: {data.ocean_archetype.primary_name}</span>
+                </span>
+              )}
             </div>
             <p className="text-slate-500 text-xs sm:text-sm mt-1">
               {profile.degree} in {profile.program_name} &middot; Year {profile.year_of_study}, Semester {profile.current_semester} &middot; Expected Graduation {profile.expected_graduation_year}

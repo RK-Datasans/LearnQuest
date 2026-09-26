@@ -673,6 +673,182 @@ const ai_recommendations = [
   }
 ];
 
+// 16. OCEAN Archetypes Catalog
+const ocean_archetypes = [
+  {
+    code: 'creative_builder',
+    name: 'Creative Builder',
+    description: 'Excels at taking novel ideas and turning them into systematic, well-architected implementations.',
+    primary_traits: 'High Openness, High Conscientiousness',
+    learning_tendency: 'Thrives when given architectural freedom combined with concrete milestones and rigorous worked examples.'
+  },
+  {
+    code: 'connector',
+    name: 'Connector',
+    description: 'Builds understanding through collaborative peer dialogue, team synthesis, and reciprocal knowledge sharing.',
+    primary_traits: 'High Extraversion, High Agreeableness',
+    learning_tendency: 'Thrives in interactive study groups, peer reviews, and collaborative problem-solving.'
+  },
+  {
+    code: 'challenger',
+    name: 'Challenger',
+    description: 'Thrives on rigorous debate, questioning assumptions, competitive benchmarking, and proving concepts independently.',
+    primary_traits: 'Low Agreeableness, High Extraversion or Conscientiousness',
+    learning_tendency: 'Engages deeply with hard edge-case problems, adversarial testing, and competitive skill challenges.'
+  },
+  {
+    code: 'worried_achiever',
+    name: 'Worried Achiever',
+    description: 'High personal standards paired with evaluation anxiety; dedicated but vulnerable to stress over ambiguity.',
+    primary_traits: 'High Neuroticism, High Conscientiousness',
+    learning_tendency: 'Benefits from explicit scaffolding, transparent rubrics, frequent low-stakes checkpoints, and reassuring feedback.'
+  },
+  {
+    code: 'steady_executor',
+    name: 'Steady Executor',
+    description: 'Methodical, calm, consistent self-pacing, and highly reliable milestone delivery without feeling overwhelmed.',
+    primary_traits: 'High Conscientiousness, Low Neuroticism',
+    learning_tendency: 'Flourishes with structured curriculum paths, incremental daily habits, and modular progress tracking.'
+  },
+  {
+    code: 'idea_explorer',
+    name: 'Idea Explorer',
+    description: 'Curious, divergent thinker who explores broad conceptual landscapes and interdisciplinary connections.',
+    primary_traits: 'High Openness, Low/Moderate Conscientiousness',
+    learning_tendency: 'Benefits from open-ended discovery paired with external guardrails to bring exploratory concepts to completion.'
+  },
+  {
+    code: 'sensitive_supporter',
+    name: 'Sensitive Supporter',
+    description: 'Empathetic, introspective, and highly attentive to learning context and group harmony.',
+    primary_traits: 'High Agreeableness, High Neuroticism',
+    learning_tendency: 'Learns best in psychological safety, supportive peer environments, and non-punitive formative quizzes.'
+  },
+  {
+    code: 'growth_builder',
+    name: 'Opportunity / Growth Builder',
+    description: 'Ambitious, proactive pursuer of stretch opportunities, leadership challenges, and expansive horizons.',
+    primary_traits: 'High Extraversion, High Openness, High Conscientiousness',
+    learning_tendency: 'Motivated by high-impact portfolio projects, rapid skill expansion, and visible leadership opportunities.'
+  },
+  {
+    code: 'team_driver',
+    name: 'Trusted Team Driver',
+    description: 'Reliable, cooperative anchor who keeps group workflows organized, transparent, and mutually supportive.',
+    primary_traits: 'High Agreeableness, High Conscientiousness',
+    learning_tendency: 'Excels when organizing team sprints, harmonizing collective workflows, and building collective mastery.'
+  },
+  {
+    code: 'mixed_pattern',
+    name: 'Mixed OCEAN Pattern',
+    description: 'Balanced distribution across Big Five trait dimensions without a single dominant polarizing archetype.',
+    primary_traits: 'Balanced Moderate Scores',
+    learning_tendency: 'Flexible across diverse learning environments, adopting different study strategies based on situational context.'
+  }
+];
+
+// Helper to determine band
+function getBand(score) {
+  if (score < 40) return 'Low';
+  if (score <= 65) return 'Moderate';
+  return 'High';
+}
+
+// 17. OCEAN Profiles & Archetype Derivations for all 42 students
+const ocean_profiles = [];
+const student_ocean_archetypes = [];
+
+// Seed student 1: Rahul Sharma (STU-2026-1042)
+ocean_profiles.push({
+  id: 1,
+  student_id: 1,
+  openness: 84,
+  conscientiousness: 78,
+  extraversion: 52,
+  agreeableness: 68,
+  neuroticism: 38
+});
+student_ocean_archetypes.push({
+  id: 1,
+  student_id: 1,
+  primary_archetype_code: 'creative_builder',
+  secondary_archetype_code: 'steady_executor',
+  supporting_evidence: 'High Openness (84) combined with High Conscientiousness (78) demonstrates a natural tendency to ideate innovative software architectures and execute reliable, well-tested implementations.'
+});
+
+// Seed students 2-42 deterministically
+for (let sId = 2; sId <= 42; sId++) {
+  // Variations based on program/cohort
+  let o, c, e, a, n, primary, secondary, evidence;
+  const mod = sId % 9;
+
+  switch (mod) {
+    case 0: // Growth Builder
+      o = 76 + (sId % 10); c = 75 + (sId % 8); e = 78 + (sId % 10); a = 58; n = 35;
+      primary = 'growth_builder'; secondary = 'creative_builder';
+      evidence = `High Extraversion (${e}), High Openness (${o}), and High Conscientiousness (${c}) indicate an ambitious, proactive pursuit of technical leadership.`;
+      break;
+    case 1: // Worried Achiever
+      o = 55; c = 82 + (sId % 7); e = 48; a = 62; n = 74 + (sId % 8);
+      primary = 'worried_achiever'; secondary = 'steady_executor';
+      evidence = `High Conscientiousness (${c}) alongside High Neuroticism (${n}) reflects dedication coupled with performance anxiety; benefits from explicit scaffolding.`;
+      break;
+    case 2: // Steady Executor
+      o = 52; c = 84 + (sId % 7); e = 45; a = 60; n = 32 + (sId % 6);
+      primary = 'steady_executor'; secondary = null;
+      evidence = `High Conscientiousness (${c}) and Low Neuroticism (${n}) indicate steady discipline and calm persistence through complex problem sets.`;
+      break;
+    case 3: // Connector
+      o = 62; c = 60; e = 82 + (sId % 8); a = 78 + (sId % 7); n = 45;
+      primary = 'connector'; secondary = 'team_driver';
+      evidence = `High Extraversion (${e}) and High Agreeableness (${a}) foster active learning through peer dialogue and group collaboration.`;
+      break;
+    case 4: // Challenger
+      o = 70; c = 78 + (sId % 6); e = 68; a = 32 + (sId % 6); n = 42;
+      primary = 'challenger'; secondary = 'steady_executor';
+      evidence = `Low Agreeableness (${a}) and High Conscientiousness (${c}) indicate an independent thinker who thrives on rigorous competitive benchmarks.`;
+      break;
+    case 5: // Idea Explorer
+      o = 86 + (sId % 6); c = 52 + (sId % 6); e = 55; a = 58; n = 48;
+      primary = 'idea_explorer'; secondary = null;
+      evidence = `High Openness (${o}) with Moderate Conscientiousness (${c}) indicates strong divergent ideation that benefits from structured deadlines.`;
+      break;
+    case 6: // Sensitive Supporter
+      o = 58; c = 62; e = 46; a = 82 + (sId % 6); n = 72 + (sId % 6);
+      primary = 'sensitive_supporter'; secondary = null;
+      evidence = `High Agreeableness (${a}) and High Neuroticism (${n}) show empathy and attentiveness to group context; thrives in psychologically safe settings.`;
+      break;
+    case 7: // Trusted Team Driver
+      o = 64; c = 78 + (sId % 6); e = 62; a = 80 + (sId % 6); n = 36;
+      primary = 'team_driver'; secondary = 'steady_executor';
+      evidence = `High Agreeableness (${a}) and High Conscientiousness (${c}) reflect reliable group leadership that keeps team workflows on track.`;
+      break;
+    default: // Creative Builder
+      o = 80 + (sId % 8); c = 76 + (sId % 8); e = 50; a = 64; n = 40;
+      primary = 'creative_builder'; secondary = 'steady_executor';
+      evidence = `High Openness (${o}) paired with High Conscientiousness (${c}) indicates a systematic approach to turning creative ideas into working prototypes.`;
+      break;
+  }
+
+  ocean_profiles.push({
+    id: sId,
+    student_id: sId,
+    openness: Math.min(98, o),
+    conscientiousness: Math.min(98, c),
+    extraversion: Math.min(98, e),
+    agreeableness: Math.min(98, a),
+    neuroticism: Math.min(98, n)
+  });
+
+  student_ocean_archetypes.push({
+    id: sId,
+    student_id: sId,
+    primary_archetype_code: primary,
+    secondary_archetype_code: secondary,
+    supporting_evidence: evidence
+  });
+}
+
 // Generate SQL
 let sql = `-- LearnQuest AI Seed Data
 -- Compatible with MySQL 8.0, XAMPP, and phpMyAdmin
@@ -751,6 +927,18 @@ ${student_goals.map(g => `(${g.id}, ${g.student_id}, ${escapeSql(g.title)}, ${es
 -- 18. AI RECOMMENDATIONS
 INSERT INTO \`ai_recommendations\` (\`id\`, \`student_id\`, \`recommendation_type\`, \`title\`, \`priority\`, \`reason\`, \`evidence_json\`, \`strategy_json\`, \`weekly_plan_json\`, \`career_connection\`, \`status\`) VALUES
 ${ai_recommendations.map(r => `(${r.id}, ${r.student_id}, ${escapeSql(r.recommendation_type)}, ${escapeSql(r.title)}, ${escapeSql(r.priority)}, ${escapeSql(r.reason)}, ${escapeSql(r.evidence_json)}, ${escapeSql(r.strategy_json)}, ${escapeSql(r.weekly_plan_json)}, ${escapeSql(r.career_connection)}, ${escapeSql(r.status)})`).join(',\n')};
+
+-- 19. OCEAN ARCHETYPES CATALOG
+INSERT INTO \`ocean_archetypes\` (\`code\`, \`name\`, \`description\`, \`primary_traits\`, \`learning_tendency\`) VALUES
+${ocean_archetypes.map(oa => `(${escapeSql(oa.code)}, ${escapeSql(oa.name)}, ${escapeSql(oa.description)}, ${escapeSql(oa.primary_traits)}, ${escapeSql(oa.learning_tendency)})`).join(',\n')};
+
+-- 20. OCEAN PROFILES
+INSERT INTO \`ocean_profiles\` (\`id\`, \`student_id\`, \`openness\`, \`conscientiousness\`, \`extraversion\`, \`agreeableness\`, \`neuroticism\`) VALUES
+${ocean_profiles.map(op => `(${op.id}, ${op.student_id}, ${op.openness}, ${op.conscientiousness}, ${op.extraversion}, ${op.agreeableness}, ${op.neuroticism})`).join(',\n')};
+
+-- 21. STUDENT OCEAN ARCHETYPES
+INSERT INTO \`student_ocean_archetypes\` (\`id\`, \`student_id\`, \`primary_archetype_code\`, \`secondary_archetype_code\`, \`supporting_evidence\`) VALUES
+${student_ocean_archetypes.map(soa => `(${soa.id}, ${soa.student_id}, ${escapeSql(soa.primary_archetype_code)}, ${escapeSql(soa.secondary_archetype_code)}, ${escapeSql(soa.supporting_evidence)})`).join(',\n')};
 
 SET FOREIGN_KEY_CHECKS = 1;
 `;

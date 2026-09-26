@@ -14,6 +14,9 @@ DROP TABLE IF EXISTS `student_badges`;
 DROP TABLE IF EXISTS `badges`;
 DROP TABLE IF EXISTS `quiz_attempts`;
 DROP TABLE IF EXISTS `quests`;
+DROP TABLE IF EXISTS `student_ocean_archetypes`;
+DROP TABLE IF EXISTS `ocean_archetypes`;
+DROP TABLE IF EXISTS `ocean_profiles`;
 DROP TABLE IF EXISTS `dynamic_learning_profiles`;
 DROP TABLE IF EXISTS `mfc_responses`;
 DROP TABLE IF EXISTS `mfc_assessments`;
@@ -215,6 +218,46 @@ CREATE TABLE `dynamic_learning_profiles` (
   `recent_behavior_evidence` TEXT,
   `last_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (`student_id`) REFERENCES `student_profiles`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 16. OCEAN PROFILES TABLE (Big Five Trait Scores: 0-100 normalized)
+CREATE TABLE `ocean_profiles` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `student_id` INT NOT NULL UNIQUE,
+  `openness` INT NOT NULL DEFAULT 50,
+  `conscientiousness` INT NOT NULL DEFAULT 50,
+  `extraversion` INT NOT NULL DEFAULT 50,
+  `agreeableness` INT NOT NULL DEFAULT 50,
+  `neuroticism` INT NOT NULL DEFAULT 50,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX `idx_op_student` (`student_id`),
+  FOREIGN KEY (`student_id`) REFERENCES `student_profiles`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 17. OCEAN ARCHETYPES CATALOG TABLE
+CREATE TABLE `ocean_archetypes` (
+  `code` VARCHAR(50) PRIMARY KEY,
+  `name` VARCHAR(100) NOT NULL,
+  `description` TEXT NOT NULL,
+  `primary_traits` VARCHAR(100) NOT NULL,
+  `learning_tendency` TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 18. STUDENT OCEAN ARCHETYPES TABLE
+CREATE TABLE `student_ocean_archetypes` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `student_id` INT NOT NULL UNIQUE,
+  `primary_archetype_code` VARCHAR(50) NOT NULL,
+  `secondary_archetype_code` VARCHAR(50) DEFAULT NULL,
+  `supporting_evidence` TEXT NOT NULL,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX `idx_soa_student` (`student_id`),
+  INDEX `idx_soa_primary` (`primary_archetype_code`),
+  INDEX `idx_soa_secondary` (`secondary_archetype_code`),
+  FOREIGN KEY (`student_id`) REFERENCES `student_profiles`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`primary_archetype_code`) REFERENCES `ocean_archetypes`(`code`) ON DELETE CASCADE,
+  FOREIGN KEY (`secondary_archetype_code`) REFERENCES `ocean_archetypes`(`code`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 16. QUESTS TABLE

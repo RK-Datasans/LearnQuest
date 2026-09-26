@@ -22,43 +22,45 @@
 ## 2. Completed Components (ALL COMPLETED & VERIFIED)
 
 ### Database & Setup
-- [x] `database/schema.sql` — 23 tables, foreign keys, indexes, utf8mb4.
-- [x] `database/seed.sql` — 42 synthetic students, courses, topics, MFC, quests, badges.
+- [x] `database/schema.sql` — 26 tables, foreign keys, indexes, utf8mb4 (includes `ocean_profiles`, `ocean_archetypes`, `student_ocean_archetypes`).
+- [x] `database/seed.sql` — 42 synthetic students, courses, topics, MFC, quests, badges, OCEAN trait profiles & archetypes.
 - [x] `database/learnquest_full.sql` — Combined self-contained file importable via phpMyAdmin / MySQL CLI.
-- [x] `scripts/generate_seed.js` — Seed data generator script.
+- [x] `scripts/generate_seed.js` — Seed data generator script with deterministic Big Five distribution.
 - [x] `package.json` — All dependencies installed (`next`, `react`, `mysql2`, `bcryptjs`, `zod`, `lucide-react`, `framer-motion`, `recharts`, `openai`, `tailwindcss`).
 - [x] `tsconfig.json`, `tailwind.config.ts`, `postcss.config.mjs`, `.gitignore`.
 - [x] `.env.local.example` & `.env.local` configured with MySQL & fallback `DEMO_MODE=true`.
 
 ### Core Backend & AI Libraries
 - [x] `lib/db.ts` — MySQL connection pool using `mysql2/promise` with error resilience.
-- [x] `lib/types.ts` — Full TypeScript interfaces for user, student profile, courses, topics, quests, MFC, faculty stats.
+- [x] `lib/ocean.ts` — Deterministic & explainable OCEAN Big Five trait engine implementing the 9 university archetypes + Mixed pattern fallback.
+- [x] `lib/types.ts` — Full TypeScript interfaces for user, student profile, courses, topics, quests, MFC, OCEAN, faculty stats.
 - [x] `lib/session.ts` — Secure session cookie + MySQL `sessions` table tracking.
 - [x] `lib/auth.ts` — Password verification (bcrypt), demo quick login, profile loader.
 - [x] `lib/gamification.ts` — XP rewards, level formula `floor(totalXP / 100) + 1`, streak bonuses, badge unlocker.
 - [x] `lib/utils.ts` — Tailwind class mergers and formatters.
 - [x] `lib/ai/schemas.ts` — Zod validation schemas for Navigator, Quiz generation, Quiz evaluation, Faculty insight.
-- [x] `lib/ai/prompts.ts` — Central AI system prompt (strict prohibition of fixed "learning styles" / "visual learner" labels; dynamic learning profile).
+- [x] `lib/ai/prompts.ts` — Central AI system prompt (strict distinction: Personality $\neq$ Preference $\neq$ Proficiency).
 - [x] `lib/ai/openai.ts` — OpenAI client with availability check and safe JSON parser.
-- [x] `lib/ai/fallback.ts` — Deterministic fallback engine reading live database context so demo works without external API key.
+- [x] `lib/ai/fallback.ts` — Deterministic fallback engine reading live database context including OCEAN behavioral signals.
 
 ### API Routes (`app/api/`)
 - [x] `app/api/auth/login/route.ts` — Email/password login with session creation.
 - [x] `app/api/auth/logout/route.ts` — Session destruction.
 - [x] `app/api/auth/me/route.ts` — Current user/profile info.
 - [x] `app/api/auth/demo/route.ts` — 1-click quick demo login for student or faculty.
-- [x] `app/api/profile/route.ts` — Profile retrieval with courses, topic mastery, dynamic profile, badges.
-- [x] `app/api/dashboard/route.ts` — Student dashboard aggregator (profile, health, DBMS focus, quest, recommendation, XP).
+- [x] `app/api/ocean/route.ts` — GET student OCEAN traits, bands, archetype; POST live recalibration.
+- [x] `app/api/profile/route.ts` — Profile retrieval with courses, topic mastery, dynamic profile, badges, OCEAN profile, archetypes.
+- [x] `app/api/dashboard/route.ts` — Student dashboard aggregator (profile, health, DBMS focus, quest, recommendation, XP, archetype).
 - [x] `app/api/mfc/route.ts` — Get 10 MFC forced-choice scenarios.
 - [x] `app/api/mfc/submit/route.ts` — Submit MFC responses, compute 8 dimension scores, update dynamic profile.
-- [x] `app/api/navigator/route.ts` — Get active recommendation & weekly plan.
-- [x] `app/api/navigator/generate/route.ts` — Synthesize multi-signal AI analysis and generate new weekly plan.
+- [x] `app/api/navigator/route.ts` — Get active recommendation & weekly plan with OCEAN context.
+- [x] `app/api/navigator/generate/route.ts` — Synthesize 5 core signals (Academics + Career + Time + MFC + OCEAN) into weekly plan.
 - [x] `app/api/quest/route.ts` — List student quests.
 - [x] `app/api/quest/[id]/route.ts` — Quest details, stages data, stage progression update.
 - [x] `app/api/quiz/generate/route.ts` — Dynamic academic quiz question generator.
-- [x] `app/api/quiz/evaluate/route.ts` — Evaluate student answer, detect misconceptions (partial vs transitive dependency), update mastery, reward XP (+15 or +100), unlock badges ("Dependency Hunter").
+- [x] `app/api/quiz/evaluate/route.ts` — Evaluate student answer, detect misconceptions, update mastery, reward XP (+15 or +100), unlock badges.
 - [x] `app/api/progress/route.ts` — Academic health, accuracy trends, XP history, quiz history.
-- [x] `app/api/faculty/overview/route.ts` — Multi-filter aggregated SQL analytics across 42 students.
+- [x] `app/api/faculty/overview/route.ts` — Multi-filter aggregated SQL analytics across 42 students including aggregate archetype distribution.
 - [x] `app/api/faculty/insight/route.ts` — AI-powered pedagogical insight based on real DB stats.
 
 ### UI Shared Components

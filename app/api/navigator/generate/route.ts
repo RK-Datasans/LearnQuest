@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const profile = await getStudentProfileByUserId(session.userId);
     if (!profile) return NextResponse.json({ error: 'Profile not found.' }, { status: 404 });
 
-    const [courses, topicMastery, dlProfile, recentAttempts] = await Promise.all([
+    const [courses, topicMastery, dlProfile, recentAttempts, oceanRows, archetypeRows] = await Promise.all([
       query<any>(
         `SELECT c.name, c.code, sc.score, sc.grade FROM student_courses sc
          JOIN courses c ON sc.course_id = c.id WHERE sc.student_id = ? AND sc.status = 'enrolled'
@@ -36,6 +36,14 @@ export async function POST(req: NextRequest) {
         `SELECT qa.is_correct, qa.difficulty, qa.misconception_detected, ct.name as topic_name
          FROM quiz_attempts qa JOIN course_topics ct ON qa.topic_id = ct.id
          WHERE qa.student_id = ? ORDER BY qa.created_at DESC LIMIT 10`,
+        [profile.id]
+      ),
+      query<any>('SELECT * FROM ocean_profiles WHERE student_id = ?', [profile.id]),
+      query<any>(
+        `SELECT soa.*, oa.name as primary_name, oa.description as primary_description, oa.primary_traits
+         FROM student_ocean_archetypes soa
+         JOIN ocean_archetypes oa ON soa.primary_archetype_code = oa.code
+         WHERE soa.student_id = ?`,
         [profile.id]
       ),
     ]);
@@ -66,6 +74,8 @@ export async function POST(req: NextRequest) {
       courses,
       topic_mastery: topicMastery,
       dynamic_profile: dlProfile[0] || null,
+      ocean_profile: oceanRows[0] || null,
+      ocean_archetype: archetypeRows[0] || null,
       recent_behavior: recentBehavior,
     };
 

@@ -27,6 +27,9 @@ export function getFallbackNavigatorRecommendation(context: any): AIRecommendati
   if (context.dynamic_profile?.worked_examples_score > 70) {
     evidence.push(`Your observed learning profile shows strong receptivity to worked examples (${context.dynamic_profile.worked_examples_score}%), guiding our pedagogical strategy.`);
   }
+  if (context.ocean_archetype) {
+    evidence.push(`Behavioral tendency signal: Derived Archetype "${context.ocean_archetype.name}" reflects a structured builder mindset that thrives on concrete milestones.`);
+  }
 
   const hoursAvailable = context.weekly_learning_hours || 8;
   const dailyMinutes = Math.floor((hoursAvailable * 60) / 5);

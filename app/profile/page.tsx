@@ -18,6 +18,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Sparkles,
+  Sliders,
+  RefreshCw,
+  ShieldAlert,
 } from 'lucide-react';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 
@@ -25,7 +28,18 @@ export default function ProfilePage() {
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'general' | 'academic' | 'career' | 'dynamic'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'academic' | 'career' | 'dynamic' | 'ocean'>('general');
+
+  // Interactive OCEAN simulator state
+  const [oceanScores, setOceanScores] = useState({
+    openness: 84,
+    conscientiousness: 78,
+    extraversion: 52,
+    agreeableness: 68,
+    neuroticism: 38,
+  });
+  const [updatingOcean, setUpdatingOcean] = useState(false);
+  const [oceanFeedback, setOceanFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/profile')
@@ -37,10 +51,54 @@ export default function ProfilePage() {
         return r.json();
       })
       .then((d) => {
-        if (d) setData(d);
+        if (d) {
+          setData(d);
+          if (d.ocean_profile) {
+            setOceanScores({
+              openness: d.ocean_profile.openness,
+              conscientiousness: d.ocean_profile.conscientiousness,
+              extraversion: d.ocean_profile.extraversion,
+              agreeableness: d.ocean_profile.agreeableness,
+              neuroticism: d.ocean_profile.neuroticism,
+            });
+          }
+        }
       })
       .finally(() => setLoading(false));
   }, [router]);
+
+  async function handleRecalibrateOcean() {
+    setUpdatingOcean(true);
+    setOceanFeedback(null);
+    try {
+      const res = await fetch('/api/ocean', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(oceanScores),
+      });
+      const result = await res.json();
+      if (result.success && result.classification) {
+        setData((prev: any) => ({
+          ...prev,
+          ocean_profile: result.scores,
+          ocean_archetype: {
+            ...prev.ocean_archetype,
+            primary_name: result.classification.primary.name,
+            primary_description: result.classification.primary.description,
+            primary_traits: result.classification.primary.primary_traits,
+            learning_tendency: result.classification.primary.learning_tendency,
+            secondary_name: result.classification.secondary?.name || null,
+            supporting_evidence: result.classification.evidence,
+          },
+        }));
+        setOceanFeedback(`Archetype dynamically recalibrated to: ${result.classification.primary.name}`);
+      }
+    } catch (e) {
+      console.error('Failed to recalibrate OCEAN', e);
+    } finally {
+      setUpdatingOcean(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -120,6 +178,7 @@ export default function ProfilePage() {
               { id: 'academic', label: 'Academic Performance', icon: GraduationCap },
               { id: 'career', label: 'Career & Interests', icon: Briefcase },
               { id: 'dynamic', label: 'Dynamic Learning Profile', icon: Brain },
+              { id: 'ocean', label: 'OCEAN & Archetype', icon: Sparkles },
             ].map((tab) => {
               const active = activeTab === tab.id;
               return (
@@ -373,6 +432,229 @@ export default function ProfilePage() {
                   {dynamic_profile?.recent_behavior_evidence ||
                     'Observed strong retention when step-by-step worked examples precede independent puzzle resolution. Calibrated against latest assessment.'}
                 </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Tab 5: OCEAN Personality Profile & Derived Archetypes */}
+        {activeTab === 'ocean' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-indigo-600" />
+                    <h3 className="text-lg font-extrabold text-slate-900">
+                      OCEAN Personality Profile & Derived Archetype
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Big Five trait tendencies (0–100 scale) with explicit Low / Moderate / High bands &middot; Section 45 compliant
+                  </p>
+                </div>
+                <span className="px-3 py-1 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold rounded-full self-start sm:self-auto">
+                  Derived Signal &middot; Not a Diagnosis
+                </span>
+              </div>
+
+              {/* Crucial Ethical / Pedagogical Distinction Banner */}
+              <div className="p-5 rounded-2xl bg-slate-900 text-slate-200 text-xs leading-relaxed mb-8 border border-slate-800 space-y-2">
+                <div className="flex items-center gap-2 font-bold text-amber-300">
+                  <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>Foundational Principle: Personality, Preference & Proficiency Are Different Constructs</span>
+                </div>
+                <p className="text-slate-300 font-normal">
+                  &bull; <strong className="text-white">Personality (OCEAN):</strong> Answers what behavioral tendencies are represented in this student&apos;s trait pattern.<br />
+                  &bull; <strong className="text-white">Preference (MFC):</strong> Answers what learning engagement modes the student has demonstrated.<br />
+                  &bull; <strong className="text-white">Proficiency (Academics):</strong> Answers what the student actually knows and where the knowledge gaps exist.<br />
+                  <span className="text-amber-200 font-semibold block pt-1">
+                    Rule: OCEAN is NEVER used as a learning-style label, a deterministic career predictor, or an excuse to bypass actual academic gaps.
+                  </span>
+                </p>
+              </div>
+
+              {/* Primary Archetype Card */}
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 text-white mb-8 border border-indigo-700/50 shadow-lg">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="text-xs font-extrabold text-indigo-300 uppercase tracking-wider">
+                    Primary Derived Archetype
+                  </span>
+                  {data?.ocean_archetype?.secondary_name && (
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-slate-300 border border-white/20">
+                      Secondary: {data.ocean_archetype.secondary_name}
+                    </span>
+                  )}
+                </div>
+
+                <h4 className="text-2xl sm:text-3xl font-extrabold mb-2 text-white">
+                  {data?.ocean_archetype?.primary_name || 'Creative Builder'}
+                </h4>
+
+                <div className="inline-block px-3 py-1 bg-indigo-500/30 border border-indigo-400/40 rounded-xl text-xs font-bold text-indigo-200 mb-4">
+                  {data?.ocean_archetype?.primary_traits || 'High Openness, High Conscientiousness'}
+                </div>
+
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+                  {data?.ocean_archetype?.learning_tendency ||
+                    'Thrives when given architectural freedom combined with concrete milestones and rigorous worked examples.'}
+                </p>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-indigo-100">
+                  <strong className="text-white block mb-1">Supporting Trait Evidence:</strong>
+                  {data?.ocean_archetype?.supporting_evidence ||
+                    'High Openness (84) combined with High Conscientiousness (78) demonstrates a natural tendency to ideate innovative software architectures and execute reliable, well-tested implementations.'}
+                </div>
+              </div>
+
+              {/* 5 Big Five Trait Breakdown Cards with Explicit Bands */}
+              <h4 className="font-extrabold text-slate-900 text-sm mb-3">Big Five Trait Dimension Scores</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-8">
+                {[
+                  {
+                    name: 'Openness',
+                    key: 'openness',
+                    score: oceanScores.openness,
+                    desc: 'Intellectual curiosity & abstract ideation',
+                  },
+                  {
+                    name: 'Conscientiousness',
+                    key: 'conscientiousness',
+                    score: oceanScores.conscientiousness,
+                    desc: 'Discipline, methodical pacing & grit',
+                  },
+                  {
+                    name: 'Extraversion',
+                    key: 'extraversion',
+                    score: oceanScores.extraversion,
+                    desc: 'Social energy & verbal dialogue',
+                  },
+                  {
+                    name: 'Agreeableness',
+                    key: 'agreeableness',
+                    score: oceanScores.agreeableness,
+                    desc: 'Cooperative spirit & team orientation',
+                  },
+                  {
+                    name: 'Neuroticism',
+                    key: 'neuroticism',
+                    score: oceanScores.neuroticism,
+                    desc: 'Sensitivity to evaluation pressure',
+                  },
+                ].map((t) => {
+                  const band = t.score < 40 ? 'Low' : t.score <= 65 ? 'Moderate' : 'High';
+                  const bandColor =
+                    band === 'High'
+                      ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                      : band === 'Moderate'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-slate-100 text-slate-600 border-slate-200';
+
+                  return (
+                    <div
+                      key={t.key}
+                      className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-extrabold text-xs text-slate-800">{t.name}</span>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${bandColor}`}>
+                            {band}
+                          </span>
+                        </div>
+                        <div className="text-2xl font-extrabold text-slate-900 mb-2">{t.score}</div>
+                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mb-2">
+                          <div
+                            className="h-full bg-indigo-600 rounded-full transition-all"
+                            style={{ width: `${t.score}%` }}
+                          />
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-slate-400 leading-tight">{t.desc}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Interactive Trait Tuning Simulator (Key Demo Feature from Section 45) */}
+              <div className="p-6 rounded-3xl bg-slate-50 border border-slate-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-indigo-600" />
+                    <h4 className="font-extrabold text-slate-900 text-sm">
+                      Interactive Archetype Recalibration Simulator
+                    </h4>
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-medium">Test Dynamic Archetype Transitions</span>
+                </div>
+                <p className="text-xs text-slate-500 mb-6 leading-relaxed">
+                  Adjust any of the 5 trait sliders below and click <strong>&ldquo;Recalibrate Archetype&rdquo;</strong> to verify that changing trait scores deterministically reclassifies the student into one of the 9 university archetypes!
+                </p>
+
+                <div className="space-y-4 mb-6">
+                  {[
+                    { key: 'openness', label: 'Openness (Intellectual Curiosity)' },
+                    { key: 'conscientiousness', label: 'Conscientiousness (Disciplined Execution)' },
+                    { key: 'extraversion', label: 'Extraversion (Social / Collaborative Energy)' },
+                    { key: 'agreeableness', label: 'Agreeableness (Team Harmony & Cooperation)' },
+                    { key: 'neuroticism', label: 'Neuroticism (Sensitivity / Stress Reactivity)' },
+                  ].map((field) => (
+                    <div key={field.key} className="space-y-1">
+                      <div className="flex justify-between text-xs font-semibold text-slate-700">
+                        <span>{field.label}</span>
+                        <span className="font-mono text-indigo-600 font-bold">
+                          {(oceanScores as any)[field.key]} / 100
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={(oceanScores as any)[field.key]}
+                        onChange={(e) =>
+                          setOceanScores((prev) => ({
+                            ...prev,
+                            [field.key]: parseInt(e.target.value, 10),
+                          }))
+                        }
+                        className="w-full accent-indigo-600 cursor-pointer"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {oceanFeedback && (
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 font-semibold mb-4 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{oceanFeedback}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between gap-4">
+                  <button
+                    onClick={() =>
+                      setOceanScores({
+                        openness: 84,
+                        conscientiousness: 78,
+                        extraversion: 52,
+                        agreeableness: 68,
+                        neuroticism: 38,
+                      })
+                    }
+                    className="text-xs text-slate-500 hover:text-slate-800 font-semibold"
+                  >
+                    Reset to Rahul&apos;s Baseline (Creative Builder)
+                  </button>
+
+                  <button
+                    onClick={handleRecalibrateOcean}
+                    disabled={updatingOcean}
+                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${updatingOcean ? 'animate-spin' : ''}`} />
+                    <span>{updatingOcean ? 'Recalibrating...' : 'Recalibrate Archetype'}</span>
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>

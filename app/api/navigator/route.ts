@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const profile = await getStudentProfileByUserId(session.userId);
     if (!profile) return NextResponse.json({ error: 'Profile not found.' }, { status: 404 });
 
-    const [recs, courses, topicMastery, dlProfile] = await Promise.all([
+    const [recs, courses, topicMastery, dlProfile, oceanRows, archetypeRows] = await Promise.all([
       query<any>(
         `SELECT * FROM ai_recommendations WHERE student_id = ? AND status = 'active'
          ORDER BY created_at DESC LIMIT 1`,
@@ -36,6 +36,14 @@ export async function GET(req: NextRequest) {
       ),
       query<any>(
         `SELECT * FROM dynamic_learning_profiles WHERE student_id = ?`,
+        [profile.id]
+      ),
+      query<any>('SELECT * FROM ocean_profiles WHERE student_id = ?', [profile.id]),
+      query<any>(
+        `SELECT soa.*, oa1.name as primary_name, oa1.description as primary_description, oa1.primary_traits
+         FROM student_ocean_archetypes soa
+         JOIN ocean_archetypes oa1 ON soa.primary_archetype_code = oa1.code
+         WHERE soa.student_id = ?`,
         [profile.id]
       ),
     ]);
@@ -63,6 +71,8 @@ export async function GET(req: NextRequest) {
       courses,
       topic_mastery: topicMastery,
       dynamic_profile: dlProfile[0] || null,
+      ocean_profile: oceanRows[0] || null,
+      ocean_archetype: archetypeRows[0] || null,
     });
   } catch (error) {
     console.error('Navigator fetch error:', error);

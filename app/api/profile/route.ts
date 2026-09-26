@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const profile = await getStudentProfileByUserId(session.userId);
     if (!profile) return NextResponse.json({ error: 'Profile not found.' }, { status: 404 });
 
-    const [courses, topicMastery, dlProfile, badges] = await Promise.all([
+    const [courses, topicMastery, dlProfile, badges, oceanRows, archetypeRows] = await Promise.all([
       query<any>(
         `SELECT sc.score, sc.grade, sc.status, c.id, c.code, c.name, c.credits, c.semester
          FROM student_courses sc
@@ -44,6 +44,20 @@ export async function GET(req: NextRequest) {
          ORDER BY sb.unlocked_at DESC`,
         [profile.id]
       ),
+      query<any>(
+        `SELECT * FROM ocean_profiles WHERE student_id = ?`,
+        [profile.id]
+      ),
+      query<any>(
+        `SELECT soa.*, 
+                oa1.name as primary_name, oa1.description as primary_description, oa1.primary_traits, oa1.learning_tendency,
+                oa2.name as secondary_name, oa2.description as secondary_description
+         FROM student_ocean_archetypes soa
+         JOIN ocean_archetypes oa1 ON soa.primary_archetype_code = oa1.code
+         LEFT JOIN ocean_archetypes oa2 ON soa.secondary_archetype_code = oa2.code
+         WHERE soa.student_id = ?`,
+        [profile.id]
+      ),
     ]);
 
     return NextResponse.json({
@@ -52,6 +66,8 @@ export async function GET(req: NextRequest) {
       topic_mastery: topicMastery,
       dynamic_profile: dlProfile[0] || null,
       badges,
+      ocean_profile: oceanRows[0] || null,
+      ocean_archetype: archetypeRows[0] || null,
     });
   } catch (error) {
     console.error('Profile fetch error:', error);

@@ -341,6 +341,46 @@ export default function FacultyDashboardPage() {
             ))}
           </div>
         </div>
+
+        {/* Aggregate Archetype Distribution (Privacy-Preserving Cohort Tendencies) */}
+        <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs mt-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <h3 className="font-extrabold text-slate-900 text-sm">
+                Cohort Personality Tendencies & Archetypes
+              </h3>
+              <p className="text-xs text-slate-400">
+                Synthetic Demo Data &middot; Aggregate Big Five Trait Clusters &middot; Individual Student Records Protected
+              </p>
+            </div>
+            <span className="px-3 py-1 bg-violet-50 border border-violet-200 text-violet-700 text-xs font-bold rounded-full self-start sm:self-auto">
+              Cohort Level Insights Only
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {data?.archetype_distribution?.map((arch: any, i: number) => (
+              <div key={i} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between">
+                <div>
+                  <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">
+                    Archetype
+                  </span>
+                  <span className="font-extrabold text-slate-900 text-xs block leading-tight">
+                    {arch.archetype_name}
+                  </span>
+                </div>
+                <div className="mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                  <span className="text-xs font-bold text-indigo-600 font-mono">
+                    {arch.student_count} Students
+                  </span>
+                  <span className="text-[10px] text-slate-400">
+                    {Math.round((arch.student_count / (stats?.total_students || 42)) * 100)}%
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   );
