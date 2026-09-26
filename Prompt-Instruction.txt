@@ -1,0 +1,2073 @@
+Build a complete full-stack hackathon prototype called:
+
+LEARNQUEST AI
+
+Tagline:
+"Know where you are. Know what matters. Know what to do next."
+
+PRODUCT CONCEPT
+
+LearnQuest AI is an AI Academic Navigator + Adaptive Gamified Learning Platform for a university environment.
+
+The system should support students from different degrees, programs, departments, academic years, semesters and career goals.
+
+The central product loop is:
+
+GENERAL STUDENT PROFILE
+        ↓
+ACADEMIC PROFILE
+        ↓
+MFC ASSESSMENT
+        ↓
+DYNAMIC LEARNING PROFILE
+        ↓
+AI ACADEMIC NAVIGATOR
+        ↓
+PERSONALIZED RECOMMENDATION
+        ↓
+PERSONALIZED WEEKLY PLAN
+        ↓
+ADAPTIVE QUEST
+        ↓
+ACADEMIC QUIZ
+        ↓
+AI EVALUATION
+        ↓
+MISCONCEPTION DETECTION
+        ↓
+ADAPTIVE DIFFICULTY
+        ↓
+MASTERY UPDATE
+        ↓
+XP / LEVEL / BADGE
+        ↓
+PROGRESS
+        ↓
+FACULTY AGGREGATE INSIGHTS
+        ↓
+FEEDBACK INTO AI NAVIGATOR
+
+IMPORTANT PRODUCT PRINCIPLE:
+
+Do NOT build this as just:
+- a chatbot
+- an MFC quiz
+- an MCQ application
+- a dashboard
+- a gamification application
+- a generic LMS
+
+Instead:
+
+MFC tells us about observed student engagement preferences.
+
+Academic performance tells us what the student actually knows.
+
+Career goals tell us where the student wants to go.
+
+Recent learning behavior tells us what is happening now.
+
+The AI combines these signals to determine a useful next learning action.
+
+The AI should NEVER claim that MFC determines a fixed "learning style".
+
+Use language such as:
+- Dynamic Learning Profile
+- Observed Learning Preferences
+- Demonstrated Preferences
+- Learning Engagement Preferences
+
+Never use:
+- "You are a visual learner"
+- "You are an auditory learner"
+- "You are a kinesthetic learner"
+- scientifically definitive learning-style claims.
+
+==================================================
+1. TECH STACK
+==================================================
+
+Use:
+
+Frontend:
+- Next.js
+- TypeScript
+- React
+- App Router
+- Tailwind CSS
+- shadcn/ui
+- Lucide icons
+- Framer Motion
+- Recharts
+
+Backend:
+- Next.js Route Handlers
+- TypeScript
+- mysql2
+- MySQL 8
+- XAMPP-compatible
+- phpMyAdmin-compatible
+
+AI:
+- OpenAI API
+- Use environment variable for model
+- Validate AI responses using Zod
+- Never expose API key to browser
+
+Authentication:
+- bcryptjs
+- HTTP-only session cookies
+- Simple secure session implementation
+- Student and Faculty roles
+
+Do NOT introduce unnecessary ORM complexity.
+
+Use mysql2 directly so the project works easily with XAMPP MySQL and phpMyAdmin.
+
+==================================================
+2. ENVIRONMENT VARIABLES
+==================================================
+
+Create:
+
+.env.local.example
+
+with:
+
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=
+MYSQL_DATABASE=learnquest
+OPENAI_API_KEY=
+OPENAI_MODEL=
+SESSION_SECRET=
+DEMO_MODE=true
+
+Never hardcode API keys.
+
+==================================================
+3. VERY IMPORTANT: CREATE AN IMPORTABLE SQL FILE
+==================================================
+
+This is mandatory.
+
+Create:
+
+database/learnquest_full.sql
+
+This must be a COMPLETE, SELF-CONTAINED SQL FILE that I can manually import into MySQL/phpMyAdmin.
+
+I should NOT need to run a TypeScript seed script to populate the initial demo.
+
+The SQL file must contain:
+
+1. Database/schema setup compatible with MySQL 8
+2. All CREATE TABLE statements
+3. Primary keys
+4. Foreign keys
+5. Appropriate indexes
+6. Unique constraints
+7. Demo users
+8. Demo student profiles
+9. Multiple degree/program/department examples
+10. Course catalog
+11. Student-course enrollments
+12. Academic performance
+13. Topic mastery
+14. MFC questions/options
+15. MFC responses/profile data where appropriate
+16. Quests
+17. Quiz/attempt data where useful
+18. XP events
+19. Goals
+20. AI recommendations
+21. Faculty/demo aggregate data derived from student records where appropriate
+
+The SQL file must be importable through:
+
+phpMyAdmin → Import → database/learnquest_full.sql
+
+Make the SQL robust for repeated imports where possible.
+
+Use:
+
+DROP TABLE IF EXISTS ...
+
+in the correct dependency order before recreating tables.
+
+Do NOT rely on Prisma migrations.
+
+Do NOT require an ORM.
+
+Also create:
+
+database/schema.sql
+
+containing the schema only.
+
+And optionally:
+
+database/seed.sql
+
+containing seed data.
+
+But:
+
+database/learnquest_full.sql
+
+is the MAIN FILE I will manually import.
+
+==================================================
+4. DATABASE DESIGN
+==================================================
+
+Design the database to support students from multiple university streams.
+
+Do NOT assume every student is a Computer Science student.
+
+Create appropriate tables such as:
+
+users
+
+student_profiles
+
+departments
+
+programs
+
+courses
+
+student_courses
+
+course_topics
+
+student_performance
+
+topic_mastery
+
+student_goals
+
+mfc_assessments
+
+mfc_questions
+
+mfc_options
+
+mfc_responses
+
+dynamic_learning_profiles
+
+quests
+
+quiz_attempts
+
+xp_events
+
+badges
+
+student_badges
+
+ai_recommendations
+
+sessions
+
+Use sensible normalized relationships.
+
+==================================================
+5. GENERAL UNIVERSITY STRUCTURE
+==================================================
+
+Support:
+
+Degree
+Program
+Department
+Specialization
+Academic year
+Year of study
+Semester
+Credits
+CGPA
+Graduation year
+
+Example programs:
+
+B.Tech Computer Science and Engineering
+B.Tech Electronics and Communication
+B.Tech Information Technology
+BBA Business Analytics
+B.Com
+B.Des Interaction Design
+MBA
+MCA
+
+Do not hardcode these into frontend logic.
+
+They should exist in the database.
+
+==================================================
+6. STUDENT GENERAL PROFILE
+==================================================
+
+Every student must have a General Profile.
+
+Example:
+
+Rahul Sharma
+
+Student ID:
+STU-2026-1042
+
+Degree:
+B.Tech
+
+Program:
+Computer Science and Engineering
+
+Department:
+Computer Science
+
+Specialization:
+Software Systems
+
+Year:
+2
+
+Semester:
+4
+
+Academic Year:
+2026
+
+CGPA:
+8.1
+
+Credits Completed:
+72
+
+Expected Graduation:
+2028
+
+Career Goal:
+Software Engineer
+
+Interests:
+AI, Backend, Cloud
+
+Weekly Learning Availability:
+8 hours
+
+This information must be stored in the database.
+
+Create:
+
+/profile
+
+page.
+
+The student profile page should contain:
+
+GENERAL INFORMATION
+- Name
+- Student ID
+- Degree
+- Program
+- Department
+- Specialization
+- Year
+- Semester
+- Academic year
+- Graduation year
+
+ACADEMIC INFORMATION
+- CGPA
+- Credits completed
+- Current courses
+- Academic performance
+
+CAREER INFORMATION
+- Career goal
+- Interests
+- Skills
+- Weekly available learning time
+
+DYNAMIC LEARNING PROFILE
+- Observed preferences
+- Confidence
+- Recent behavioral evidence
+
+==================================================
+7. MULTI-STREAM STUDENTS
+==================================================
+
+The demo database must contain students from different streams.
+
+At minimum seed:
+
+Computer Science
+Electronics
+Business Analytics
+Design
+Management
+
+Do not make all students identical.
+
+Example:
+
+Student 1:
+B.Tech CSE
+Career: Software Engineer
+
+Student 2:
+B.Tech ECE
+Career: Embedded Systems Engineer
+
+Student 3:
+BBA Business Analytics
+Career: Data Analyst
+
+Student 4:
+B.Des Interaction Design
+Career: UX Designer
+
+Student 5:
+MBA
+Career: Product Manager
+
+The faculty dashboard should aggregate these students.
+
+Label generated students:
+
+"Synthetic Demo Data"
+
+Do not imply these are real students.
+
+==================================================
+8. DEMO USERS
+==================================================
+
+Create:
+
+STUDENT
+
+Name:
+Rahul Sharma
+
+Email:
+student@learnquest.local
+
+Password:
+Demo123!
+
+Role:
+student
+
+FACULTY
+
+Name:
+Dr. Priya Mehta
+
+Email:
+faculty@learnquest.local
+
+Password:
+Demo123!
+
+Role:
+faculty
+
+Make sure the SQL contains valid password hashes compatible with bcryptjs so these accounts actually work.
+
+==================================================
+9. RAHUL'S ACADEMIC DATA
+==================================================
+
+Rahul:
+
+Degree:
+B.Tech
+
+Program:
+Computer Science and Engineering
+
+Department:
+Computer Science
+
+Year:
+2
+
+Semester:
+4
+
+CGPA:
+8.1
+
+Career Goal:
+Software Engineer
+
+Interests:
+AI
+Backend
+Cloud
+
+Weekly Learning:
+8 hours
+
+Current courses:
+
+Programming
+Algorithms
+Database Systems
+Operating Systems
+Computer Networks
+
+Performance:
+
+Programming:
+86
+
+Algorithms:
+78
+
+Database Systems:
+62
+
+Operating Systems:
+71
+
+Computer Networks:
+74
+
+Weak DBMS topics:
+
+Normalization
+Transactions
+Indexing
+
+Strengths:
+
+Programming
+Algorithms
+
+Seed enough realistic academic records to make the dashboard and AI analysis believable.
+
+==================================================
+10. MFC ASSESSMENT
+==================================================
+
+Create:
+
+/mfc
+
+The MFC means:
+
+Multi-Dimensional Forced Choice.
+
+It is NOT a traditional personality test.
+
+Create 8–12 forced-choice scenarios.
+
+Example:
+
+"When learning a difficult concept, which would you prefer?"
+
+A:
+See a worked example first, then solve a similar problem.
+
+B:
+Try solving the problem first, then compare with an example.
+
+Dimensions may include:
+
+worked_example_preference
+practice_first_preference
+guided_learning_preference
+visual_structure_preference
+reflection_preference
+challenge_preference
+session_structure_preference
+collaboration_preference
+
+The scoring can initially be deterministic and normalized.
+
+AI can interpret the results.
+
+Do not present results as fixed learning styles.
+
+After completion show:
+
+DYNAMIC LEARNING PROFILE
+
+Example:
+
+Worked Examples: 82%
+Guided Practice: 71%
+Reflection: 84%
+Visual Structure: 63%
+Challenge Preference: 68%
+
+Show:
+
+"These are observed preferences based on your responses and recent learning activity."
+
+Also show:
+
+"Your profile evolves as you learn."
+
+==================================================
+11. DYNAMIC LEARNING PROFILE
+==================================================
+
+The profile should eventually combine:
+
+MFC responses
++
+Quiz behavior
++
+Quiz accuracy
++
+Remediation success
++
+Quest behavior
++
+Recent activity
+
+The MFC should be only one signal.
+
+Example:
+
+MFC says:
+Worked examples preference = high
+
+But if actual quiz behavior shows the student performs better after practice-first experiences, the AI should be allowed to adapt.
+
+Do NOT use rigid:
+
+IF visual THEN video
+
+style rules.
+
+==================================================
+12. STUDENT DASHBOARD
+==================================================
+
+Create:
+
+/dashboard
+
+The dashboard should show:
+
+Greeting
+
+Student identity
+
+General academic profile summary
+
+Academic Health
+
+Current focus
+
+Current courses
+
+CGPA
+
+Weekly learning
+
+XP
+
+Level
+
+Streak
+
+Career goal
+
+Dynamic Learning Profile summary
+
+Active quest
+
+Progress charts
+
+Most important:
+
+"YOUR NEXT BEST ACTION"
+
+Example:
+
+Strengthen Database Normalization
+
+Why:
+
+- DBMS performance is lower than other subjects
+- Normalization mastery is weak
+- Recent quiz behavior shows repeated mistakes
+- It is relevant to current academic progress
+- It connects to the student's career direction
+
+CTA:
+
+[Start Recommended Quest]
+
+==================================================
+13. AI ACADEMIC NAVIGATOR
+==================================================
+
+Create:
+
+/navigator
+
+The AI Navigator must analyze:
+
+General student profile
+Academic performance
+Current courses
+Topic mastery
+Quiz behavior
+Career goal
+Interests
+Weekly available time
+MFC profile
+Recent learning behavior
+
+Do NOT only choose the lowest score.
+
+The AI should reason over multiple signals.
+
+Return structured JSON:
+
+{
+  "academic_status": "...",
+  "next_priority": {
+    "type": "...",
+    "title": "...",
+    "priority": "...",
+    "reason": "...",
+    "evidence": []
+  },
+  "learning_strategy": {
+    "approach": "...",
+    "why": "..."
+  },
+  "weekly_plan": [
+    {
+      "day": "...",
+      "action": "...",
+      "estimated_minutes": 30
+    }
+  ],
+  "career_connection": "...",
+  "risks_or_tradeoffs": [],
+  "next_action": "..."
+}
+
+Validate using Zod.
+
+==================================================
+14. PERSONALIZED WEEKLY PLAN
+==================================================
+
+Generate a realistic plan based on:
+
+Available weekly hours
+Current courses
+Weak topics
+Career goals
+Upcoming priorities
+Recent performance
+Observed preferences
+
+Example:
+
+Monday:
+Normalization concept — 25 min
+
+Tuesday:
+Worked examples — 30 min
+
+Wednesday:
+Guided practice — 30 min
+
+Friday:
+Challenge — 25 min
+
+Sunday:
+Boss Battle — 20 min
+
+Do not create impossible schedules.
+
+==================================================
+15. QUEST SYSTEM
+==================================================
+
+Create:
+
+/quest
+
+and:
+
+/quest/[id]
+
+Example:
+
+QUEST:
+
+Defeat Normalization
+
+Course:
+Database Systems
+
+Difficulty:
+Medium
+
+Progress:
+60%
+
+Reward:
++150 XP
+
+Stages:
+
+1. Warm-up
+2. Personalized Explanation
+3. Worked Example
+4. Practice
+5. Challenge
+6. Boss Battle
+
+The presentation can be influenced by the student's observed preferences, but do not use rigid personality rules.
+
+==================================================
+16. ACADEMIC QUIZ
+==================================================
+
+The Academic Quiz is separate from MFC.
+
+MFC measures:
+Observed engagement preferences.
+
+Academic Quiz measures:
+Actual academic understanding/mastery.
+
+Generate questions dynamically using AI.
+
+Inputs:
+
+Topic
+Current mastery
+Previous mistakes
+Recent accuracy
+Difficulty
+Quest stage
+
+Return:
+
+{
+  "question": "...",
+  "options": [],
+  "correct_answer": "...",
+  "explanation": "...",
+  "difficulty": "...",
+  "concept": "..."
+}
+
+Use structured JSON and Zod validation.
+
+==================================================
+17. ADAPTIVE QUIZ EVALUATION
+==================================================
+
+When a student answers:
+
+Send AI:
+
+Question
+Options
+Correct answer
+Student answer
+Topic
+Current mastery
+Previous mistakes
+Recent accuracy
+Current difficulty
+
+Return:
+
+{
+  "correct": true,
+  "feedback": "...",
+  "misconception": "...",
+  "recommended_difficulty": "...",
+  "next_action": "..."
+}
+
+If correct:
+
+- Give XP
+- Increase mastery
+- Increase difficulty appropriately
+- Continue challenge
+
+If incorrect:
+
+- Identify likely misconception
+- Give targeted feedback
+- Provide remediation
+- Reduce difficulty appropriately
+- Generate a targeted retry
+
+This adaptive behavior MUST be visible in the UI.
+
+==================================================
+18. KEY DEMO MOMENT: MISCONCEPTION DETECTION
+==================================================
+
+Create a strong demo scenario.
+
+Example:
+
+Student answers a normalization question incorrectly.
+
+Show:
+
+"Misconception Detected"
+
+"You appear to be confusing partial dependency with transitive dependency."
+
+Then:
+
+"Let's fix this."
+
+Show a personalized worked example.
+
+Then:
+
+"Try a targeted question."
+
+Give an easier question focused on the misconception.
+
+If correct:
+
+"Concept recovered."
+
+Update mastery.
+
+Then increase difficulty again.
+
+This should be one of the strongest AI moments in the demo.
+
+==================================================
+19. BOSS BATTLE
+==================================================
+
+At the end of a quest:
+
+Create:
+
+BOSS BATTLE
+
+Generate a final question dynamically based on:
+
+- Current mastery
+- Previous mistakes
+- Recent accuracy
+- Quest progress
+- Difficulty
+
+Successful completion:
+
++100 XP
+
+Badge:
+
+Dependency Hunter
+
+==================================================
+20. GAMIFICATION
+==================================================
+
+Use professional, subtle gamification.
+
+XP:
+
+Easy:
++15
+
+Medium:
++25
+
+Hard:
++40
+
+Quest:
++50
+
+Boss:
++100
+
+Streak:
++20
+
+Level:
+
+floor(totalXP / 100) + 1
+
+Show:
+
+XP
+Level
+Streak
+Badges
+Quest completion
+
+Do not make it childish.
+
+Use polished micro-animations.
+
+==================================================
+21. PROGRESS PAGE
+==================================================
+
+Create:
+
+/progress
+
+Show:
+
+Academic Health
+Overall Mastery
+Quiz Accuracy
+Learning Hours
+XP
+Level
+Streak
+Quest Completion
+
+Use Recharts.
+
+Show:
+
+Mastery over time
+Quiz accuracy
+Course performance
+Learning activity
+
+Also show:
+
+DYNAMIC LEARNING PROFILE
+
+And:
+
+"How LearnQuest Adapted"
+
+Example:
+
+You struggled with:
+Partial vs Transitive Dependency
+
+↓
+
+AI detected misconception
+
+↓
+
+Worked example provided
+
+↓
+
+Difficulty reduced
+
+↓
+
+Targeted retry
+
+↓
+
+Concept recovered
+
+↓
+
+Difficulty increased
+
+This visually demonstrates the adaptive loop.
+
+==================================================
+22. FACULTY DASHBOARD
+==================================================
+
+Create:
+
+/faculty
+
+Faculty users should see aggregate academic information.
+
+Seed approximately:
+
+42 synthetic students.
+
+Show:
+
+Total students
+Average academic health
+Students improving
+Students needing attention
+Common topic gaps
+Program distribution
+Course performance
+Topic mastery
+
+Example:
+
+42 Synthetic Students
+
+Average Academic Health:
+71%
+
+Improving:
+24
+
+Need Attention:
+8
+
+Common Topic Gap:
+Normalization
+
+IMPORTANT:
+
+These statistics must be calculated from actual database records.
+
+Do NOT hardcode fake numbers into the UI.
+
+==================================================
+23. FACULTY FILTERS
+==================================================
+
+Allow filtering by:
+
+Degree
+Program
+Department
+Year
+Semester
+Course
+
+Example:
+
+Program:
+B.Tech CSE
+
+Year:
+2
+
+Course:
+Database Systems
+
+Then show aggregate data for that segment.
+
+==================================================
+24. FACULTY AI INSIGHT
+==================================================
+
+The AI should analyze aggregated MySQL data.
+
+Return:
+
+{
+  "insight": "...",
+  "evidence": [],
+  "affected_group": "...",
+  "suggested_intervention": "...",
+  "expected_outcome": "..."
+}
+
+Example:
+
+Insight:
+
+Normalization is the most common topic gap among second-year CSE students.
+
+Evidence:
+
+8 students have mastery below the defined threshold.
+
+Suggested Intervention:
+
+Run a targeted normalization practice session focused on dependency identification.
+
+IMPORTANT:
+
+The AI must receive actual database-derived statistics.
+
+Never invent statistics.
+
+==================================================
+25. API ROUTES
+==================================================
+
+Create:
+
+/api/auth/login
+/api/auth/logout
+/api/auth/me
+
+/api/mfc
+/api/mfc/submit
+/api/mfc/profile
+
+/api/navigator
+/api/navigator/generate
+
+/api/quest
+/api/quest/generate
+/api/quest/[id]
+
+/api/quiz/generate
+/api/quiz/evaluate
+
+/api/progress
+
+/api/faculty
+/api/faculty/overview
+/api/faculty/insight
+
+Use server-side database access.
+
+Validate request bodies using Zod.
+
+==================================================
+26. AI SERVICE
+==================================================
+
+Create:
+
+lib/ai/openai.ts
+lib/ai/prompts.ts
+lib/ai/schemas.ts
+lib/ai/fallback.ts
+
+Central AI system prompt:
+
+"You are LearnQuest AI, an academic decision-support assistant.
+
+Analyze student academic performance, goals, interests, available time, observed learning preferences, recent behavior and assessment results.
+
+Do not invent student data.
+
+Do not invent university policies, resources or courses.
+
+Treat MFC results as observed preference signals, not diagnoses or fixed learning styles.
+
+Do not label students as visual, auditory or kinesthetic learners.
+
+Explain reasoning using available evidence.
+
+Recommendations should be presented as reasoned options and next actions.
+
+When evaluating quizzes, identify likely misconceptions and adapt difficulty based on evidence."
+
+==================================================
+27. DEMO MODE
+==================================================
+
+If:
+
+DEMO_MODE=true
+
+and OpenAI is unavailable:
+
+The application must still work.
+
+Use deterministic fallback responses.
+
+Show a small:
+
+"Demo Mode"
+
+indicator.
+
+Do not crash.
+
+AI JSON must always be validated.
+
+If AI returns malformed JSON:
+
+- attempt safe parsing
+- otherwise use fallback
+- never expose raw internal errors to the student
+
+==================================================
+28. APPLICATION PAGES
+==================================================
+
+Create:
+
+/
+Landing page
+
+/login
+Login
+
+/dashboard
+Student dashboard
+
+/profile
+General + academic + career profile
+
+/mfc
+MFC assessment
+
+/navigator
+AI Academic Navigator
+
+/quest
+Quest library
+
+/quest/[id]
+Quest execution
+
+/progress
+Student progress
+
+/faculty
+Faculty dashboard
+
+==================================================
+29. LANDING PAGE
+==================================================
+
+Headline:
+
+"Know where you are.
+Know what matters.
+Know what to do next."
+
+Subheadline:
+
+"LearnQuest AI combines academic performance, student goals, observed learning preferences and adaptive assessment to guide every student's next learning action."
+
+Sections:
+
+How it works
+
+1. Understand
+2. Navigate
+3. Learn
+4. Adapt
+5. Progress
+
+Keep it concise and polished.
+
+==================================================
+30. UI / UX DESIGN
+==================================================
+
+Design direction:
+
+Premium AI SaaS
++
+Modern University Platform
++
+Subtle Gamification
+
+Use:
+
+- clean typography
+- rounded cards
+- soft shadows
+- subtle gradients
+- indigo/blue
+- orange/coral accents
+- green success states
+- amber warnings
+- slate backgrounds
+- Lucide icons
+- Framer Motion
+
+Avoid:
+
+- excessive glassmorphism
+- neon colors
+- childish game UI
+- clutter
+- excessive animations
+
+Make it look like a serious university product that happens to have game mechanics.
+
+Responsive desktop-first design but make layouts responsive.
+
+==================================================
+31. LOADING STATES
+==================================================
+
+Use meaningful AI loading messages:
+
+"Analyzing your academic profile..."
+"Reviewing your recent performance..."
+"Understanding your learning preferences..."
+"Building your dynamic profile..."
+"Finding your next priority..."
+"Creating your personalized plan..."
+"Building your challenge..."
+"Checking for misconceptions..."
+"Adapting your next question..."
+
+Do not use generic:
+
+"Loading..."
+
+where an AI-specific message makes sense.
+
+==================================================
+32. ERROR HANDLING
+==================================================
+
+Handle:
+
+Database unavailable
+Invalid login
+OpenAI unavailable
+Invalid AI response
+Empty data
+Network failure
+Unauthorized faculty access
+Unauthorized student access
+
+Show friendly UI messages.
+
+Never expose:
+
+API keys
+database credentials
+stack traces
+SQL errors to users
+
+==================================================
+33. PROJECT STRUCTURE
+==================================================
+
+Use:
+
+app/
+  page.tsx
+  login/
+  dashboard/
+  profile/
+  mfc/
+  navigator/
+  quest/
+  progress/
+  faculty/
+  api/
+    auth/
+    mfc/
+    navigator/
+    quest/
+    quiz/
+    progress/
+    faculty/
+
+components/
+  dashboard/
+  profile/
+  navigator/
+  mfc/
+  quest/
+  quiz/
+  gamification/
+  progress/
+  faculty/
+  ui/
+
+lib/
+  db.ts
+  auth.ts
+  session.ts
+  gamification.ts
+  types.ts
+  utils.ts
+
+lib/ai/
+  openai.ts
+  prompts.ts
+  schemas.ts
+  fallback.ts
+
+database/
+  schema.sql
+  seed.sql
+  learnquest_full.sql
+
+scripts/
+  seed.ts
+
+README.md
+
+==================================================
+34. SQL REQUIREMENTS AGAIN — VERY IMPORTANT
+==================================================
+
+The project is NOT complete unless:
+
+database/learnquest_full.sql
+
+exists and can be imported manually into phpMyAdmin.
+
+It must contain all required tables and demo data.
+
+The SQL should support:
+
+- multiple degrees
+- multiple programs
+- multiple departments
+- multiple courses
+- different students
+- student-course relationships
+- grades
+- topic mastery
+- MFC
+- dynamic profiles
+- quests
+- quizzes
+- XP
+- badges
+- goals
+- AI recommendations
+- sessions if required
+
+Make all foreign keys correct.
+
+Make sure import order is correct.
+
+Make sure UTF-8/utf8mb4 is used.
+
+Use sensible indexes.
+
+==================================================
+35. README
+==================================================
+
+Create a detailed README with:
+
+Requirements:
+
+- Node.js
+- XAMPP
+- MySQL
+- phpMyAdmin
+
+Setup:
+
+1. Start Apache/MySQL from XAMPP.
+2. Open phpMyAdmin.
+3. Create database named:
+
+learnquest
+
+4. Import:
+
+database/learnquest_full.sql
+
+5. Copy:
+
+.env.local.example
+
+to:
+
+.env.local
+
+6. Configure MySQL credentials.
+
+7. Add OPENAI_API_KEY if available.
+
+8. Run:
+
+npm install
+
+9. Run:
+
+npm run dev
+
+10. Open:
+
+http://localhost:3000
+
+Include demo credentials:
+
+Student:
+student@learnquest.local
+Demo123!
+
+Faculty:
+faculty@learnquest.local
+Demo123!
+
+Also explain how Demo Mode works.
+
+==================================================
+36. DEMO DATA
+==================================================
+
+Seed approximately 42 synthetic students.
+
+Use varied:
+
+- degrees
+- programs
+- departments
+- years
+- semesters
+- CGPAs
+- courses
+- mastery
+- career goals
+- interests
+- academic performance
+
+Make the data internally consistent.
+
+For example, a student should only be enrolled in courses appropriate to their program.
+
+Do not make all 42 students copies of Rahul.
+
+Label all aggregate faculty data:
+
+"Synthetic Demo Data"
+
+==================================================
+37. DEMO FLOW
+==================================================
+
+The primary demo should follow Rahul.
+
+STEP 1
+
+Login as:
+
+student@learnquest.local
+
+STEP 2
+
+Dashboard shows:
+
+Rahul Sharma
+B.Tech CSE
+Year 2
+Semester 4
+CGPA 8.1
+
+Academic Health:
+72%
+
+Current focus:
+Database Systems
+
+DBMS:
+62%
+
+Career:
+Software Engineer
+
+Observed preference:
+Worked Examples 82%
+
+Recommendation:
+Strengthen Database Normalization
+
+STEP 3
+
+Open MFC.
+
+Complete several forced-choice scenarios.
+
+Show Dynamic Learning Profile.
+
+STEP 4
+
+Open AI Navigator.
+
+Show that AI considers:
+
+- degree/program
+- academic data
+- current courses
+- weak topics
+- career goal
+- interests
+- weekly time
+- MFC
+- recent behavior
+
+STEP 5
+
+AI recommends:
+
+Database Normalization
+
+Generate weekly plan.
+
+STEP 6
+
+Start:
+
+"Defeat Normalization"
+
+STEP 7
+
+Complete academic quiz.
+
+First answer should be wrong in the demo scenario.
+
+STEP 8
+
+Show:
+
+MISCONCEPTION DETECTED
+
+"Confusion between partial and transitive dependency."
+
+STEP 9
+
+AI provides targeted worked example.
+
+STEP 10
+
+Generate easier retry.
+
+Student answers correctly.
+
+STEP 11
+
+Show:
+
+Mastery increased
+
++15 XP
+
+Difficulty increasing
+
+STEP 12
+
+Complete Boss Battle.
+
+Show:
+
++100 XP
+
+Badge:
+Dependency Hunter
+
+STEP 13
+
+Open Progress.
+
+Show measurable improvement.
+
+STEP 14
+
+Switch to Faculty.
+
+Show:
+
+42 synthetic students.
+
+Filter:
+
+B.Tech CSE
+Year 2
+Database Systems
+
+Show common normalization gap.
+
+Generate AI faculty insight.
+
+==================================================
+38. CORE DEMO NARRATIVE
+==================================================
+
+The product story should be:
+
+"Every student is different.
+
+They come from different programs, have different academic histories, different goals and different amounts of available time.
+
+LearnQuest first understands who the student is academically.
+
+Then it understands what the student knows.
+
+MFC provides another signal about how the student tends to engage.
+
+The AI Academic Navigator combines these signals to determine what the student should focus on next.
+
+The system then turns that recommendation into a personalized quest.
+
+Academic quizzes measure whether the student actually understands the concept.
+
+If the student makes a mistake, AI detects the misconception, changes the learning path and adapts the difficulty.
+
+The student's mastery and progress update automatically.
+
+Faculty can then see aggregate learning gaps across programs and intervene where needed."
+
+==================================================
+39. IMPORTANT AI BEHAVIOR
+==================================================
+
+Do not create fake AI by simply changing text based on hardcoded IF statements.
+
+The core recommendation should be generated from actual database context.
+
+However, because this is a hackathon prototype:
+
+- deterministic fallback logic is allowed when OpenAI is unavailable
+- demo data can be seeded
+- specific demo scenario can be guided
+- fallback must still use real stored student data
+
+The application should visibly demonstrate that changing student data can change the recommendation.
+
+For example:
+
+If another student's program, academic weaknesses, career goal and MFC profile are different, their recommendation should be different.
+
+==================================================
+40. SECURITY
+==================================================
+
+Never expose:
+
+OPENAI_API_KEY
+MYSQL_PASSWORD
+SESSION_SECRET
+
+to the browser.
+
+Use server-side API calls.
+
+Use HTTP-only cookies.
+
+Validate user role on protected routes.
+
+Faculty pages require faculty role.
+
+Student pages require student authentication.
+
+==================================================
+41. ACCEPTANCE CRITERIA
+==================================================
+
+The project is complete only when:
+
+[ ] npm install works
+
+[ ] npm run dev works
+
+[ ] XAMPP MySQL works
+
+[ ] database/learnquest_full.sql exists
+
+[ ] SQL can be imported manually through phpMyAdmin
+
+[ ] Database creates successfully
+
+[ ] Demo users work
+
+[ ] Student login works
+
+[ ] Faculty login works
+
+[ ] Student profile works
+
+[ ] Multiple degrees/programs exist
+
+[ ] Multiple departments exist
+
+[ ] Multiple courses exist
+
+[ ] Student-course relationships work
+
+[ ] Academic data exists
+
+[ ] MFC works
+
+[ ] MFC responses save
+
+[ ] Dynamic Learning Profile works
+
+[ ] AI Navigator works
+
+[ ] Navigator considers multiple signals
+
+[ ] Weekly plan generated
+
+[ ] Quest generated
+
+[ ] Academic quiz generated
+
+[ ] Quiz evaluation works
+
+[ ] Misconception detection works
+
+[ ] Adaptive difficulty works
+
+[ ] Mastery updates
+
+[ ] XP updates
+
+[ ] Level updates
+
+[ ] Badge unlock works
+
+[ ] Progress page works
+
+[ ] Faculty aggregation works
+
+[ ] Faculty filtering works
+
+[ ] Faculty AI insight works
+
+[ ] Faculty statistics come from database
+
+[ ] OpenAI fallback works
+
+[ ] Zod validation works
+
+[ ] No API key exposure
+
+[ ] No major console errors
+
+[ ] npm run build works
+
+==================================================
+42. BUILD PRIORITY
+==================================================
+
+Prioritize in this exact order:
+
+P0 — MUST WORK
+
+1. MySQL connection
+2. SQL import file
+3. Authentication
+4. General student profile
+5. Multi-program database
+6. Dashboard
+7. MFC
+8. Dynamic Learning Profile
+9. AI Navigator
+10. Recommendation
+11. Weekly plan
+12. Quest
+13. Academic quiz
+14. AI evaluation
+15. Misconception detection
+16. Adaptive difficulty
+17. Mastery update
+18. XP
+19. Level
+20. Boss
+21. Badge
+22. Progress
+23. Faculty dashboard
+24. Faculty aggregation
+25. Faculty AI insight
+
+P1 — POLISH
+
+- Animations
+- Better charts
+- Transitions
+- Empty states
+- Loading states
+- Responsive improvements
+- Visual refinement
+
+P2 — ONLY IF TIME
+
+- Additional filters
+- Additional badges
+- More advanced analytics
+- Extra gamification
+- Additional AI features
+
+Do not sacrifice P0 functionality for visual polish.
+
+==================================================
+43. FINAL PRODUCT PRINCIPLE
+==================================================
+
+Remember:
+
+LearnQuest AI is not trying to answer:
+
+"What learning style are you?"
+
+It is trying to answer:
+
+"Given who this student is, what they know, where they want to go, how they have been learning, and what they are struggling with — what should they do next?"
+
+The final system should demonstrate this loop:
+
+UNDERSTAND STUDENT
+        ↓
+UNDERSTAND ACADEMICS
+        ↓
+UNDERSTAND OBSERVED PREFERENCES
+        ↓
+AI DECISION
+        ↓
+PERSONALIZED LEARNING ACTION
+        ↓
+MEASURE UNDERSTANDING
+        ↓
+DETECT MISCONCEPTION
+        ↓
+ADAPT
+        ↓
+UPDATE MASTERY
+        ↓
+RECOMMEND AGAIN
+
+The strongest conceptual explanation for judges is:
+
+"We don't confuse preference with proficiency. MFC helps us understand how a student tends to engage, while academic performance tells us what the student actually knows. Our AI combines both signals with the student's goals, academic context and behavior to personalize the next learning action."
+
+==================================================
+44. FINAL INSTRUCTION TO ANTIGRAVITY
+==================================================
+
+Do not stop at generating UI mockups.
+
+Implement the actual working application.
+
+Use real MySQL queries.
+
+Use real authentication.
+
+Use real database relationships.
+
+Use real API routes.
+
+Use OpenAI where configured.
+
+Use deterministic fallback where necessary.
+
+Make the SQL importable manually.
+
+Make the seeded data internally consistent.
+
+Make the entire Rahul demo flow work from login → MFC → Navigator → Quest → Quiz → Misconception → Adaptation → XP → Progress → Faculty.
+
+Before finishing:
+
+1. Run/build the application.
+2. Check for TypeScript errors.
+3. Check database queries.
+4. Check authentication.
+5. Check all API routes.
+6. Check SQL import structure.
+7. Verify demo credentials.
+8. Verify that student and faculty roles work.
+9. Verify that the main demo flow works.
+10. Fix major errors before considering the project complete.
+
+The final result should feel like a polished, credible AI university platform that can be demonstrated end-to-end in approximately 7 minutes.
+Full read file at last as well as git repo command to publish repo
