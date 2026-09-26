@@ -1,66 +1,114 @@
 import { AIRecommendationResponse, QuizQuestionResponse, QuizEvaluationResponse, FacultyInsightResponse } from './schemas';
 
 export function getFallbackNavigatorRecommendation(context: any): AIRecommendationResponse {
+  const isMba =
+    context.degree === 'MBA' ||
+    context.program_name?.includes('MBA') ||
+    context.career_goal?.toLowerCase().includes('product') ||
+    context.career_goal?.toLowerCase().includes('manager');
+
   // Find the weakest performing course
   const courses = context.courses || [];
   const sortedCourses = [...courses].sort((a: any, b: any) => a.score - b.score);
-  const weakestCourse = sortedCourses[0] || { name: 'Database Systems', score: 62 };
+  const weakestCourse = sortedCourses[0] || (isMba
+    ? { name: 'Strategic Product Management', score: 64 }
+    : { name: 'Database Systems', score: 62 });
 
   // Find the weakest topic from mastery
   const topicMastery = context.topic_mastery || [];
   const weakTopics = topicMastery.filter((t: any) => t.mastery_score < 70);
-  const weakestTopic = weakTopics.sort((a: any, b: any) => a.mastery_score - b.mastery_score)[0];
+  const weakestTopic = weakTopics.sort((a: any, b: any) => a.mastery_score - b.mastery_score)[0] || (isMba
+    ? { topic_name: 'Unit Economics & LTV/CAC', mastery_score: 48 }
+    : { topic_name: 'Normalization (1NF, 2NF, 3NF, BCNF)', mastery_score: 52 });
 
-  const title = weakestTopic
+  const title = isMba
+    ? `Bridge ${weakestTopic.topic_name} Deficit`
+    : weakestTopic
     ? `Strengthen ${weakestTopic.topic_name}`
     : `Improve ${weakestCourse.name}`;
 
   const evidence: string[] = [];
-  if (weakestCourse) {
-    evidence.push(`${weakestCourse.name} score of ${weakestCourse.score}% is below your strongest subjects.`);
-  }
-  if (weakestTopic) {
-    evidence.push(`Topic mastery for "${weakestTopic.topic_name}" is currently ${weakestTopic.mastery_score}% — the lowest in your profile.`);
-    evidence.push(`This topic directly appears in technical assessment and production engineering contexts relevant to ${context.career_goal}.`);
-  }
-  evidence.push(`You have ${context.weekly_learning_hours} hours per week available — enough for targeted mastery improvement.`);
-  if (context.dynamic_profile?.worked_examples_score > 70) {
-    evidence.push(`Your observed learning profile shows strong receptivity to worked examples (${context.dynamic_profile.worked_examples_score}%), guiding our pedagogical strategy.`);
-  }
-  if (context.ocean_archetype) {
-    evidence.push(`Behavioral tendency signal: Derived Archetype "${context.ocean_archetype.name}" reflects a structured builder mindset that thrives on concrete milestones.`);
+  if (isMba) {
+    evidence.push(`${weakestCourse.name} score of ${weakestCourse.score}% indicates vulnerability in core strategic and quantitative management foundations.`);
+    evidence.push(`Topic mastery for "${weakestTopic.topic_name}" is currently ${weakestTopic.mastery_score}% — a vital prerequisite for tech product strategy and unit economics evaluation.`);
+    evidence.push(`Directly required for ${context.career_goal} competencies: product P&L stewardship, cohort retention analytics, and technology roadmap justification.`);
+    evidence.push(`Your ${context.ocean_archetype?.name || 'Team Driver'} archetype excels when quantitative modeling is paired with executive presentations and collaborative sprints.`);
+  } else {
+    if (weakestCourse) {
+      evidence.push(`${weakestCourse.name} score of ${weakestCourse.score}% is below your strongest subjects.`);
+    }
+    if (weakestTopic) {
+      evidence.push(`Topic mastery for "${weakestTopic.topic_name}" is currently ${weakestTopic.mastery_score}% — the lowest in your profile.`);
+      evidence.push(`This topic directly appears in technical assessment and production engineering contexts relevant to ${context.career_goal}.`);
+    }
+    evidence.push(`You have ${context.weekly_learning_hours} hours per week available — enough for targeted mastery improvement.`);
+    if (context.dynamic_profile?.worked_examples_score > 70) {
+      evidence.push(`Your observed learning profile shows strong receptivity to worked examples (${context.dynamic_profile.worked_examples_score}%), guiding our pedagogical strategy.`);
+    }
+    if (context.ocean_archetype) {
+      evidence.push(`Behavioral tendency signal: Derived Archetype "${context.ocean_archetype.name}" reflects a structured builder mindset that thrives on concrete milestones.`);
+    }
   }
 
   const hoursAvailable = context.weekly_learning_hours || 8;
   const dailyMinutes = Math.floor((hoursAvailable * 60) / 5);
 
+  const academicStatus = isMba
+    ? `${context.name} is demonstrating strong performance across ${context.program_name} (CGPA ${context.cgpa}). Key focus area: ${weakestCourse.name} requires reinforcement in quantitative technology management frameworks.`
+    : `${context.name} is progressing well in ${context.program_name} (CGPA ${context.cgpa}). Key focus area identified: ${weakestCourse.name} shows the widest performance gap relative to other core subjects.`;
+
+  const reason = isMba
+    ? `${weakestCourse.name} continuous evaluation (${weakestCourse.score}%) lags other management subjects. The topic "${weakestTopic.topic_name}" is at ${weakestTopic.mastery_score}% mastery. In Technology Management, this is the foundational quantitative lever for defending product investments, cohort retention, and customer acquisition metrics.`
+    : `${weakestCourse.name} performance (${weakestCourse.score}%) lags other subjects by 14–24 percentage points. ${weakestTopic ? `The topic "${weakestTopic.topic_name}" is at ${weakestTopic.mastery_score}% mastery — the clearest actionable lever.` : ''} This is directly relevant to the career goal of ${context.career_goal}.`;
+
+  const careerConnection = isMba
+    ? `As an aspiring ${context.career_goal}, deep mastery of ${weakestTopic?.topic_name || weakestCourse.name} empowers you to bridge business viability with technical execution — justifying R&D investments, modeling customer lifetime value, and aligning cross-functional teams with executive stakeholders.`
+    : `As a ${context.career_goal}, deep mastery of ${weakestTopic?.topic_name || weakestCourse.name} is foundational for ${context.career_goal.includes('Software') ? 'designing reliable backend architectures, preventing data corruption, and optimizing query performance in production systems.' : 'delivering data-driven decisions, clean modeling pipelines, and production-grade analytical systems.'}`;
+
+  const risksOrTradeoffs = isMba
+    ? [
+        `Gaps in unit economics and cohort analysis risk weakening your business case defense in capstone presentations and venture pitches.`,
+        `Technology management and product leadership roles heavily evaluate candidates on quantitative metric telemetry and margin sustainability.`,
+      ]
+    : [
+        `Continuing to neglect ${weakestCourse.name} (${weakestCourse.score}%) risks pulling down CGPA in the final semester evaluation.`,
+        `Unresolved conceptual gaps in this area may appear in technical interviews for ${context.career_goal} roles.`,
+      ];
+
   return {
-    academic_status: `${context.name} is progressing well in ${context.program_name} (CGPA ${context.cgpa}). Key focus area identified: ${weakestCourse.name} shows the widest performance gap relative to other core subjects.`,
+    academic_status: academicStatus,
     next_priority: {
       type: 'topic_mastery',
       title,
       priority: 'High',
-      reason: `${weakestCourse.name} performance (${weakestCourse.score}%) lags other subjects by 14–24 percentage points. ${weakestTopic ? `The topic "${weakestTopic.topic_name}" is at ${weakestTopic.mastery_score}% mastery — the clearest actionable lever.` : ''} This is directly relevant to the career goal of ${context.career_goal}.`,
+      reason,
       evidence,
     },
     learning_strategy: {
-      approach: context.dynamic_profile?.worked_examples_score > 70
+      approach: isMba
+        ? 'Case-Study-First with Cohort Decomposition'
+        : context.dynamic_profile?.worked_examples_score > 70
         ? 'Worked-Example-First with Targeted Retry Cycles'
         : 'Guided Scaffolding with Progressive Complexity',
-      why: `Based on your observed engagement preferences, you demonstrate stronger retention after reviewing structured examples before independent problem-solving. This strategy is reinforced by your recent quiz behavior patterns.`,
+      why: isMba
+        ? `Your observed profile demonstrates high retention when business scenarios are deconstructed through worked spreadsheets before independent calculation.`
+        : `Based on your observed engagement preferences, you demonstrate stronger retention after reviewing structured examples before independent problem-solving. This strategy is reinforced by your recent quiz behavior patterns.`,
     },
-    weekly_plan: [
+    weekly_plan: isMba ? [
+      { day: 'Monday', action: `SaaS Metrics Foundations — Churn, ARPU, and MRR definitions review`, estimated_minutes: Math.min(dailyMinutes, 30) },
+      { day: 'Tuesday', action: `Worked Example — Annotated LTV/CAC cohort spreadsheet modeling`, estimated_minutes: Math.min(dailyMinutes, 30) },
+      { day: 'Wednesday', action: `Guided Practice — diagnose payback periods in sample startup case studies`, estimated_minutes: Math.min(dailyMinutes, 30) },
+      { day: 'Friday', action: `Challenge — analyze Net Revenue Retention (NRR) and expansion loops`, estimated_minutes: Math.min(dailyMinutes, 25) },
+      { day: 'Sunday', action: `Boss Battle — Defend SaaS Investment Memo in Adaptive Quest`, estimated_minutes: 25 },
+    ] : [
       { day: 'Monday', action: `Foundations — ${weakestTopic?.topic_name || weakestCourse.name} core concepts & definition review`, estimated_minutes: Math.min(dailyMinutes, 30) },
       { day: 'Tuesday', action: `Worked Example — Annotated ${weakestTopic?.topic_name || ''} step-by-step scenario`, estimated_minutes: Math.min(dailyMinutes, 30) },
       { day: 'Wednesday', action: `Guided Practice — identify patterns in sample problems`, estimated_minutes: Math.min(dailyMinutes, 30) },
       { day: 'Friday', action: `Challenge — higher-difficulty application problem`, estimated_minutes: Math.min(dailyMinutes, 25) },
       { day: 'Sunday', action: `Boss Battle — Complete the Adaptive Quest to validate mastery`, estimated_minutes: 20 },
     ],
-    career_connection: `As a ${context.career_goal}, deep mastery of ${weakestTopic?.topic_name || weakestCourse.name} is foundational for ${context.career_goal.includes('Software') ? 'designing reliable backend architectures, preventing data corruption, and optimizing query performance in production systems.' : 'delivering data-driven decisions, clean modeling pipelines, and production-grade analytical systems.'}`,
-    risks_or_tradeoffs: [
-      `Continuing to neglect ${weakestCourse.name} (${weakestCourse.score}%) risks pulling down CGPA in the final semester evaluation.`,
-      `Unresolved conceptual gaps in this area may appear in technical interviews for ${context.career_goal} roles.`,
-    ],
+    career_connection: careerConnection,
+    risks_or_tradeoffs: risksOrTradeoffs,
     next_action: `Launch the "${weakestTopic?.topic_name || 'targeted topic'}" Adaptive Quest to begin the structured remediation cycle.`,
   };
 }

@@ -263,28 +263,31 @@ export default function DashboardPage() {
               </p>
 
               {/* Rationale Bullet points */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-slate-300">
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span>DBMS score (62%) is 14–24 points behind other subjects</span>
+              {recommendation?.evidence && recommendation.evidence.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-slate-300">
+                  {recommendation.evidence.map((item: string, i: number) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span>Normalization topic mastery is weak at 52%</span>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-slate-300">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                    <span>Identified primary academic gap requiring prerequisite remediation</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                    <span>Directly aligned with your career goal and target competencies</span>
+                  </div>
                 </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span>Directly required for Software Engineer backend roles</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span>Calibrated to your Worked-Examples preference (82%)</span>
-                </div>
-              </div>
+              )}
 
               <div className="flex items-center gap-3 flex-wrap">
                 <button
-                  onClick={() => router.push('/quest/1')}
+                  onClick={() => router.push(active_quest ? `/quest/${active_quest.id}` : '/quest')}
                   className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/30 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <Target className="w-4 h-4" />
@@ -305,7 +308,7 @@ export default function DashboardPage() {
             <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="font-extrabold text-slate-900 text-base">Semester 4 Course Performance</h3>
+                  <h3 className="font-extrabold text-slate-900 text-base">Semester {profile.current_semester} Course Performance</h3>
                   <p className="text-xs text-slate-500">Benchmark comparison across all enrolled subjects</p>
                 </div>
                 <div className="flex items-center gap-3 text-xs">

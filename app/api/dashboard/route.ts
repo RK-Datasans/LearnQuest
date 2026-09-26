@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
         [profile.id]
       ),
       query<any>(
-        `SELECT id, title, priority, reason FROM ai_recommendations
+        `SELECT id, title, priority, reason, evidence_json FROM ai_recommendations
          WHERE student_id = ? AND status = 'active'
          ORDER BY created_at DESC LIMIT 1`,
         [profile.id]
@@ -79,13 +79,41 @@ export async function GET(req: NextRequest) {
       ),
     ]);
 
+    const rawRec = activeRec[0];
+    const cleanReason = rawRec?.reason
+      ? rawRec.reason
+          .replace(/ÔÇÖ/g, '—')
+          .replace(/â€”/g, '—')
+          .replace(/â€"/g, '–')
+          .replace(/â€™/g, "'")
+      : '';
+
+    let parsedEvidence: string[] = [];
+    if (rawRec?.evidence_json) {
+      try {
+        parsedEvidence = JSON.parse(rawRec.evidence_json);
+      } catch {
+        parsedEvidence = [];
+      }
+    }
+
+    const recommendation = rawRec
+      ? {
+          id: rawRec.id,
+          title: rawRec.title,
+          priority: rawRec.priority,
+          reason: cleanReason,
+          evidence: parsedEvidence,
+        }
+      : null;
+
     return NextResponse.json({
       profile,
       courses,
       topic_mastery: topicMastery,
       dynamic_profile: dlProfile[0] || null,
       active_quest: activeQuest[0] || null,
-      recommendation: activeRec[0] || null,
+      recommendation,
       recent_xp: recentXP,
       badges,
       ocean_archetype: archetypeRows[0] || null,

@@ -127,10 +127,10 @@ export default function NavigatorPage() {
               <span>{generating ? 'Synthesizing...' : 'Regenerate Analysis'}</span>
             </button>
             <button
-              onClick={() => router.push('/quest/1')}
+              onClick={() => router.push(data?.active_quest?.id ? `/quest/${data.active_quest.id}` : (profile?.degree === 'MBA' ? '/quest/3' : '/quest/1'))}
               className="flex items-center gap-1.5 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition-all shadow-sm"
             >
-              <span>Launch Quest</span>
+              <span>Launch Active Quest</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -187,12 +187,18 @@ export default function NavigatorPage() {
               </div>
               <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 text-xs shadow-xs">
                 <span className="text-slate-400 block mb-0.5 font-medium">4. Observed Preference</span>
-                <span className="font-bold text-indigo-600">Worked Examples (82%)</span>
+                <span className="font-bold text-indigo-600">
+                  {dynamic_profile?.collaboration_score >= 80
+                    ? `Collaboration (${dynamic_profile.collaboration_score}%)`
+                    : dynamic_profile?.worked_examples_score >= 70
+                    ? `Worked Examples (${dynamic_profile.worked_examples_score}%)`
+                    : 'Demonstrated Engagement'}
+                </span>
               </div>
               <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 text-xs shadow-xs">
                 <span className="text-slate-400 block mb-0.5 font-medium">5. OCEAN Archetype</span>
                 <span className="font-bold text-violet-700">
-                  {data?.ocean_archetype?.primary_name || 'Creative Builder'}
+                  {data?.ocean_archetype?.primary_name || (profile?.degree === 'MBA' ? 'Team Driver' : 'Creative Builder')}
                 </span>
               </div>
             </div>
