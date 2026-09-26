@@ -53,7 +53,13 @@ export default function DashboardPage() {
         return r.json();
       })
       .then((d) => {
-        if (d) setData(d);
+        if (d && !d.error && d.profile) {
+          setData(d);
+        } else if (d?.error) {
+          setError(d.error);
+        } else if (d) {
+          setError('Failed to load profile data.');
+        }
       })
       .catch(() => setError('Failed to load dashboard data.'))
       .finally(() => setLoading(false));
@@ -68,7 +74,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (error || !data) {
+  if (error || !data || !data.profile) {
     return (
       <div className="min-h-screen bg-slate-50">
         <NavBar />
@@ -123,12 +129,14 @@ export default function DashboardPage() {
       ]
     : [];
 
+  const topTraits = dlpData.slice().sort((a, b) => b.value - a.value).slice(0, 2);
+
   return (
     <div className="min-h-screen bg-slate-50">
       <NavBar
-        userRole={profile.role || 'student'}
-        userName={profile.name}
-        studentId={profile.student_id}
+        userRole={profile?.role || 'student'}
+        userName={profile?.name || 'Student'}
+        studentId={profile?.student_id || ''}
       />
       <DemoModeBanner />
 
@@ -499,9 +507,16 @@ export default function DashboardPage() {
                 <div className="py-8 text-center text-xs text-slate-400">No profile data yet. Complete MFC.</div>
               )}
 
-              <div className="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100/80 text-[11px] text-indigo-900 leading-relaxed">
-                <span className="font-bold">Worked Examples (82%)</span> and <span className="font-bold">Reflection (84%)</span> are your most pronounced observed tendencies. LearnQuest adapts content presentation accordingly.
-              </div>
+              {topTraits.length >= 2 ? (
+                <div className="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100/80 text-[11px] text-indigo-900 leading-relaxed">
+                  <span className="font-bold">{topTraits[0].dimension} ({topTraits[0].value}%)</span> and{' '}
+                  <span className="font-bold">{topTraits[1].dimension} ({topTraits[1].value}%)</span> are your most pronounced observed tendencies. LearnQuest adapts content presentation accordingly.
+                </div>
+              ) : (
+                <div className="p-3 bg-indigo-50/60 rounded-xl border border-indigo-100/80 text-[11px] text-indigo-900 leading-relaxed">
+                  Observed engagement tendencies will adapt dynamically as you complete learning quests and challenges.
+                </div>
+              )}
             </div>
 
             {/* Recent XP Activity */}

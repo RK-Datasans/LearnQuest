@@ -1,9 +1,12 @@
 import mysql, { Pool, PoolOptions } from 'mysql2/promise';
 
-let pool: Pool | null = null;
+declare global {
+  // eslint-disable-next-line no-var
+  var _mysqlPool: Pool | undefined;
+}
 
 export function getDbPool(): Pool {
-  if (!pool) {
+  if (!globalThis._mysqlPool) {
     const config: PoolOptions = {
       host: process.env.MYSQL_HOST || 'localhost',
       port: parseInt(process.env.MYSQL_PORT || '3306', 10),
@@ -11,15 +14,15 @@ export function getDbPool(): Pool {
       password: process.env.MYSQL_PASSWORD || '',
       database: process.env.MYSQL_DATABASE || 'learnquest',
       waitForConnections: true,
-      connectionLimit: 15,
+      connectionLimit: 10,
       queueLimit: 0,
       enableKeepAlive: true,
       keepAliveInitialDelay: 0,
     };
 
-    pool = mysql.createPool(config);
+    globalThis._mysqlPool = mysql.createPool(config);
   }
-  return pool;
+  return globalThis._mysqlPool;
 }
 
 export async function query<T = any>(sql: string, params: any[] = []): Promise<T[]> {

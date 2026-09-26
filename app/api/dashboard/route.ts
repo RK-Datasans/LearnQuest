@@ -79,19 +79,33 @@ export async function GET(req: NextRequest) {
       ),
     ]);
 
+    function sanitizeEncoding(str: string): string {
+      if (!str) return str;
+      return str
+        .replace(/ÔÇÖ/g, "'")
+        .replace(/ÔÇö/g, '—')
+        .replace(/ÔÇ£/g, '"')
+        .replace(/ÔÇ¥/g, '"')
+        .replace(/â€”/g, '—')
+        .replace(/â€"/g, '–')
+        .replace(/â€™/g, "'")
+        .replace(/â€œ/g, '"')
+        .replace(/â€\x9d/g, '"');
+    }
+
     const rawRec = activeRec[0];
-    const cleanReason = rawRec?.reason
-      ? rawRec.reason
-          .replace(/ÔÇÖ/g, '—')
-          .replace(/â€”/g, '—')
-          .replace(/â€"/g, '–')
-          .replace(/â€™/g, "'")
-      : '';
+    const cleanReason = sanitizeEncoding(rawRec?.reason || '');
+    const cleanTitle = sanitizeEncoding(rawRec?.title || '');
 
     let parsedEvidence: string[] = [];
     if (rawRec?.evidence_json) {
       try {
-        parsedEvidence = JSON.parse(rawRec.evidence_json);
+        const rawArr = JSON.parse(rawRec.evidence_json);
+        if (Array.isArray(rawArr)) {
+          parsedEvidence = rawArr.map((item: any) =>
+            typeof item === 'string' ? sanitizeEncoding(item) : String(item)
+          );
+        }
       } catch {
         parsedEvidence = [];
       }
@@ -100,7 +114,7 @@ export async function GET(req: NextRequest) {
     const recommendation = rawRec
       ? {
           id: rawRec.id,
-          title: rawRec.title,
+          title: cleanTitle,
           priority: rawRec.priority,
           reason: cleanReason,
           evidence: parsedEvidence,
