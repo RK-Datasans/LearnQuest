@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { topic_id, quest_id, difficulty, stage_name } = GenerateSchema.parse(body);
 
-    const [topicRows, masteryRows, recentMistakes] = await Promise.all([
+    const [topicRows, masteryRows, recentMistakes, recentAttempts] = await Promise.all([
       query<any>(
         `SELECT ct.name as topic_name, c.name as course_name FROM course_topics ct
          JOIN courses c ON ct.course_id = c.id WHERE ct.id = ?`,
@@ -38,6 +38,12 @@ export async function POST(req: NextRequest) {
         `SELECT misconception_detected FROM quiz_attempts
          WHERE student_id = ? AND topic_id = ? AND is_correct = 0 AND misconception_detected IS NOT NULL
          ORDER BY created_at DESC LIMIT 5`,
+        [profile.id, topic_id]
+      ),
+      query<any>(
+        `SELECT question_text FROM quiz_attempts
+         WHERE student_id = ? AND topic_id = ?
+         ORDER BY created_at DESC LIMIT 6`,
         [profile.id, topic_id]
       ),
     ]);
@@ -53,6 +59,7 @@ export async function POST(req: NextRequest) {
       difficulty,
       stage_name,
       previous_mistakes: recentMistakes.map((m: any) => m.misconception_detected).filter(Boolean),
+      recent_questions: recentAttempts.map((r: any) => r.question_text),
     };
 
     let question: any = null;

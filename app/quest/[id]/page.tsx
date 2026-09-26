@@ -25,6 +25,57 @@ import {
   TrendingUp,
 } from 'lucide-react';
 
+const STAGES = [
+  {
+    id: 1,
+    name: 'Warm-up',
+    desc: 'Relational Anomalies: Insert, Update, and Delete traps in denormalized databases.',
+    isQuiz: false,
+    xp: 20,
+  },
+  {
+    id: 2,
+    name: 'Personalized Explanation',
+    desc: 'Deconstructing 1NF, 2NF, and 3NF with visual schema models adapted to your profile.',
+    isQuiz: false,
+    xp: 25,
+  },
+  {
+    id: 3,
+    name: 'Worked Example',
+    desc: 'Step-by-step resolution of a decomposed Student-Course relation.',
+    isQuiz: false,
+    xp: 30,
+  },
+  {
+    id: 4,
+    name: 'Practice Quiz',
+    desc: 'Identify Partial Dependencies (2NF) vs Transitive Dependencies (3NF).',
+    isQuiz: true,
+    difficulty: 'Medium',
+    isBoss: false,
+    xp: 35,
+  },
+  {
+    id: 5,
+    name: 'Challenge',
+    desc: 'Multi-attribute candidate keys and BCNF violation traps.',
+    isQuiz: true,
+    difficulty: 'Hard',
+    isBoss: false,
+    xp: 40,
+  },
+  {
+    id: 6,
+    name: 'Boss Battle',
+    desc: 'Conquer the Normalization Boss Battle to earn the Dependency Hunter badge!',
+    isQuiz: true,
+    difficulty: 'Boss',
+    isBoss: true,
+    xp: 100,
+  },
+];
+
 export default function QuestDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -65,7 +116,7 @@ export default function QuestDetailPage() {
   // Load question when stage changes
   useEffect(() => {
     if (!questData?.quest) return;
-    const stage = stages[currentStageIndex];
+    const stage = STAGES[currentStageIndex];
     if (stage?.isQuiz) {
       loadQuizQuestion(stage.difficulty || 'Medium', stage.name, !!stage.isBoss);
     } else {
@@ -73,7 +124,7 @@ export default function QuestDetailPage() {
       setEvaluationResult(null);
       setMisconceptionBanner(null);
     }
-  }, [currentStageIndex, questData]);
+  }, [currentStageIndex, questData?.quest?.id]);
 
   async function loadQuizQuestion(difficulty: string = 'Medium', stageName: string = 'Practice', isBoss: boolean = false) {
     setSelectedAnswer(null);
@@ -105,7 +156,7 @@ export default function QuestDetailPage() {
     setSelectedAnswer(optLabel);
     setEvaluating(true);
 
-    const isBoss = stages[currentStageIndex]?.isBoss || false;
+    const isBoss = STAGES[currentStageIndex]?.isBoss || false;
 
     try {
       const res = await fetch('/api/quiz/evaluate', {
@@ -155,20 +206,20 @@ export default function QuestDetailPage() {
   }
 
   async function handleAdvanceStage() {
-    const nextStage = Math.min(stages.length, currentStageIndex + 2);
+    const nextStage = Math.min(STAGES.length, currentStageIndex + 2);
     try {
       await fetch(`/api/quest/${questId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           stage: nextStage,
-          stages_data: stages.map((s, idx) => ({
+          stages_data: STAGES.map((s, idx) => ({
             ...s,
             status: idx < nextStage ? 'completed' : idx === nextStage - 1 ? 'active' : 'locked',
           })),
         }),
       });
-      setCurrentStageIndex((prev) => Math.min(stages.length - 1, prev + 1));
+      setCurrentStageIndex((prev) => Math.min(STAGES.length - 1, prev + 1));
       setEvaluationResult(null);
       setMisconceptionBanner(null);
     } catch (e) {
@@ -188,58 +239,7 @@ export default function QuestDetailPage() {
   const quest = questData?.quest || {};
   const topicMastery = questData?.topic_mastery?.mastery_score || 52;
 
-  const stages = [
-    {
-      id: 1,
-      name: 'Warm-up',
-      desc: 'Relational Anomalies: Insert, Update, and Delete traps in denormalized databases.',
-      isQuiz: false,
-      xp: 20,
-    },
-    {
-      id: 2,
-      name: 'Personalized Explanation',
-      desc: 'Deconstructing 1NF, 2NF, and 3NF with visual schema models adapted to your profile.',
-      isQuiz: false,
-      xp: 25,
-    },
-    {
-      id: 3,
-      name: 'Worked Example',
-      desc: 'Step-by-step resolution of a decomposed Student-Course relation.',
-      isQuiz: false,
-      xp: 30,
-    },
-    {
-      id: 4,
-      name: 'Practice Quiz',
-      desc: 'Identify Partial Dependencies (2NF) vs Transitive Dependencies (3NF).',
-      isQuiz: true,
-      difficulty: 'Medium',
-      isBoss: false,
-      xp: 35,
-    },
-    {
-      id: 5,
-      name: 'Challenge',
-      desc: 'Multi-attribute candidate keys and BCNF violation traps.',
-      isQuiz: true,
-      difficulty: 'Hard',
-      isBoss: false,
-      xp: 40,
-    },
-    {
-      id: 6,
-      name: 'Boss Battle',
-      desc: 'Conquer the Normalization Boss Battle to earn the Dependency Hunter badge!',
-      isQuiz: true,
-      difficulty: 'Boss',
-      isBoss: true,
-      xp: 100,
-    },
-  ];
-
-  const currentStage = stages[currentStageIndex];
+  const currentStage = STAGES[currentStageIndex];
 
   return (
     <div className="min-h-screen bg-slate-50 pb-16">
@@ -255,7 +255,7 @@ export default function QuestDetailPage() {
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                   {quest.course_name}
                 </span>
-                <span className="text-xs text-slate-400">&middot; Stage {currentStageIndex + 1} of {stages.length}</span>
+                <span className="text-xs text-slate-400">&middot; Stage {currentStageIndex + 1} of {STAGES.length}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 {quest.title}
@@ -278,7 +278,7 @@ export default function QuestDetailPage() {
 
           {/* Stepper Stages Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 mt-8 pt-6 border-t border-slate-100">
-            {stages.map((st, idx) => {
+            {STAGES.map((st, idx) => {
               const isPast = idx < currentStageIndex;
               const isCurrent = idx === currentStageIndex;
               return (
